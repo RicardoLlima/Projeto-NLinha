@@ -6,7 +6,7 @@ void BuildBoard(int Col, int Lin, char Brd[1000][1000])
 
     for (idxCol = 0; idxCol < Col; idxCol++)
     {
-        for (idxLin = 0; idxLin <= Lin+1; idxLin++)
+        for (idxLin = 0; idxLin <= Lin+5; idxLin++)
         {
             aux = idxLin % 2;
 
@@ -24,7 +24,7 @@ void ShowBoard(int Col, int Lin, char Brd[1000][1000])
 
     for (idxLin = 0; idxLin < Col; idxLin++) // Linhas
     {
-        for (idxCol = 0; idxCol <= Lin+1; idxCol++) //Colunas
+        for (idxCol = 0; idxCol <= Lin+5; idxCol++) //Colunas
         {
             printf("%c", Brd[idxLin][idxCol]);
         }
@@ -37,9 +37,9 @@ int main()
 {
     char board[1000][1000];
 
-    BuildBoard(5,7, board);
+    BuildBoard(5,4, board);
 
-    ShowBoard(5,7, board);
+    ShowBoard(5,4, board);
 
     return 0;
 }
