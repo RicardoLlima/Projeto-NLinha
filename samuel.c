@@ -57,9 +57,6 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
         for (idxLin = LinNum; idxLin >= 0; idxLin--)
         {
 
-            //if(aux % 2 == 0)
-            //   auxStartIndex++;
-
             if (Brd[idxLin][auxStartIndex] == '_')
             {
                 Brd[idxLin][auxStartIndex] = 'X';
@@ -84,6 +81,18 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
     }
     
 }
+
+void VictoryVerification(int PieceQntty, int StartIndex, char Brd[1000][1000], int Lin, int Col, int VctSq) //VctSq é o valor da sequencia vencedora
+{
+    //Exceções: Se a linha/coluna for 0 ou se a linha/coluna tiver o seu valor máximo
+    //, ou seja, ser igual á Lin ou Col respetivamente
+
+    //Verificar para cada peça da jogada se as 
+    //suas diagonais, verticais e horizontais atingiram o valor da sequencia vencedora
+
+    
+}
+
 
 int main()
 {
@@ -120,6 +129,7 @@ int main()
 
         InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
         ShowBoard(Lines, Columns, board);
+        //Função de verificação de vitória
 
     } while (1);
 
