@@ -32,7 +32,7 @@ void ShowBoard(int Lin, int Col, char Brd[1000][1000])
     }
 }
 
-void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[1000][1000], int LinNum)
+void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[1000][1000], int LinNum)   
 {
     // StartIndex é o numero da coluna
     // PieceType é o caracter a jogar
@@ -78,14 +78,20 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
     }
 }
 
-void VictoryVerification(int PieceQntty, int StartIndex, char Brd[1000][1000], int Lin, int Col, int VctSq) // VctSq é o valor da sequencia vencedora
-{
-    // Exceções: Se a linha/coluna for 0 ou se a linha/coluna tiver o seu valor máximo
-    //, ou seja, ser igual á Lin ou Col respetivamente
 
-    // Verificar para cada peça da jogada se as
-    // suas diagonais, verticais e horizontais atingiram o valor da sequencia vencedora
+void LineVictoryVerification(char Brd[1000][1000], int VctSq, int Direction)
+{
+    
 }
+
+void ColumnVictoryVerification(char Brd[1000][1000], int VctSq, int Direction)
+{
+
+}
+
+
+
+int WinSeq;
 
 int main()
 {
@@ -93,21 +99,14 @@ int main()
 
     int Lines;
     int Columns;
-    int WinSeq;
 
-    do{
+    printf("Indique a sequencia vencedora: ");
+    scanf("%d", &WinSeq);
 
-        printf("Indique a sequencia vencedora: ");
-        scanf("%d", &WinSeq);
-        printf("Indique o numero de linhas: ");
-        scanf("%d", &Lines);
-        printf("Indique o numero de colunas: ");
-        scanf("%d", &Columns);
+    printf("%d", &WinSeq);
 
-        if(Lines != WinSeq || Columns != WinSeq)
-            printf("O numero de linhas e colunas deve ser igual ao da sequencia vencedora!");
-
-    }while(Lines != WinSeq || Columns != WinSeq);
+    Lines = WinSeq;
+    Columns = WinSeq;
     
 
     Columns = Columns * 2;
@@ -124,7 +123,7 @@ int main()
         int Drctn; // 1 - Direita   0 - Esquerda
         char piece;
 
-        printf("Quantidade de pecas a jogar: ");
+        printf("\n\nQuantidade de pecas a jogar: ");
         scanf("%d", &PcQntty);
         printf("Posicao Inicial: ");
         scanf("%d", &StrtIdx);
