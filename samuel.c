@@ -46,7 +46,6 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
     int auxStartIndex = (StartIndex * 2) - 1; // Controla o numero da coluna que está a ser rodado
     //(No caso de direita vai andar para a frente, caso de esquerda para trás)
 
-
     // Controlar a passagem das colunas se for mais que 1 peça
 
     for (idxColumn = 0; idxColumn < PieceQntty; idxColumn++)
@@ -63,36 +62,30 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
                 break;
             }
         }
-    
-    
-        if(Direction)
+
+        if (Direction)
         {
-            //Jogada para a direita
-            auxStartIndex = auxStartIndex + 2; 
+            // Jogada para a direita
+            auxStartIndex = auxStartIndex + 2;
         }
         else
         {
-            //Jogada para a esquerda
+            // Jogada para a esquerda
 
-            if(auxStartIndex != 1)
+            if (auxStartIndex != 1)
                 auxStartIndex = auxStartIndex - 2;
         }
-    
     }
-    
 }
 
-void VictoryVerification(int PieceQntty, int StartIndex, char Brd[1000][1000], int Lin, int Col, int VctSq) //VctSq é o valor da sequencia vencedora
+void VictoryVerification(int PieceQntty, int StartIndex, char Brd[1000][1000], int Lin, int Col, int VctSq) // VctSq é o valor da sequencia vencedora
 {
-    //Exceções: Se a linha/coluna for 0 ou se a linha/coluna tiver o seu valor máximo
+    // Exceções: Se a linha/coluna for 0 ou se a linha/coluna tiver o seu valor máximo
     //, ou seja, ser igual á Lin ou Col respetivamente
 
-    //Verificar para cada peça da jogada se as 
-    //suas diagonais, verticais e horizontais atingiram o valor da sequencia vencedora
-
-    
+    // Verificar para cada peça da jogada se as
+    // suas diagonais, verticais e horizontais atingiram o valor da sequencia vencedora
 }
-
 
 int main()
 {
@@ -100,11 +93,22 @@ int main()
 
     int Lines;
     int Columns;
+    int WinSeq;
 
-    printf("Indique o numero de linhas: ");
-    scanf("%d", &Lines);
-    printf("Indique o numero de colunas: ");
-    scanf("%d", &Columns);
+    do{
+
+        printf("Indique a sequencia vencedora: ");
+        scanf("%d", &WinSeq);
+        printf("Indique o numero de linhas: ");
+        scanf("%d", &Lines);
+        printf("Indique o numero de colunas: ");
+        scanf("%d", &Columns);
+
+        if(Lines != WinSeq || Columns != WinSeq)
+            printf("O numero de linhas e colunas deve ser igual ao da sequencia vencedora!");
+
+    }while(Lines != WinSeq || Columns != WinSeq);
+    
 
     Columns = Columns * 2;
 
@@ -129,7 +133,7 @@ int main()
 
         InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
         ShowBoard(Lines, Columns, board);
-        //Função de verificação de vitória
+        // Função de verificação de vitória
 
     } while (1);
 
