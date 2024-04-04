@@ -78,32 +78,38 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
     }
 }
 
-
-void LineVictoryVerification(char Brd[1000][1000], int VctSq, int Direction)
+int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
-    
+    int idxCol, idxLin;
+    int ColSeqCount = 1, LinSeqCount = 1;
+
+    for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
+    {
+        for (idxCol = 0; idxCol <= Col; idxCol++) // Colunas
+        {
+            if(Brd[idxLin][idxCol] == CurrentPlayerChar)
+            {
+                LinSeqCount++;
+
+                if(LinSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                LinSeqCount = 1; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+        }
+    }
 }
-
-void ColumnVictoryVerification(char Brd[1000][1000], int VctSq, int Direction)
-{
-
-}
-
-
-
-int WinSeq;
 
 int main()
 {
     char board[1000][1000];
 
+    int WinSeq;
     int Lines;
     int Columns;
 
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
-
-    printf("%d", &WinSeq);
 
     Lines = WinSeq;
     Columns = WinSeq;
@@ -132,7 +138,12 @@ int main()
 
         InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
         ShowBoard(Lines, Columns, board);
+        
         // Função de verificação de vitória
+        if(VictoryVerification(Lines,Columns,board,'x',WinSeq))
+            printf("\n\nVITORIA!");
+            
+
 
     } while (1);
 
