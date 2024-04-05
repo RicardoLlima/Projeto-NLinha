@@ -1,5 +1,12 @@
 #include <stdio.h>
 
+struct Jogador
+{
+    char nome[50];
+    int JogosRealizados;
+    int Vitorias;
+};
+
 void BuildBoard(int Lin, int Col, char Brd[1000][1000])
 {
     int idxCol, idxLin, aux;
@@ -108,6 +115,9 @@ int main()
     int Lines;
     int Columns;
 
+    struct Jogador player[2];
+    int idxPl;
+
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
 
@@ -121,6 +131,20 @@ int main()
     BuildBoard(Lines, Columns, board);
     ShowBoard(Lines, Columns, board);
 
+    //Ler Jogadores
+
+        printf("\nBem-vindo Jogador %d", idxPl+1);
+
+        printf("\nIndique o seu nome :");
+        scanf("%49s", &player[idxPl].nome);
+        printf("Indique o seu idade :");
+        scanf("%d", &player[idxPl].JogosRealizados);
+        printf("Indique o seu salario :");
+        scanf("%d", &player[idxPl].Vitorias);
+
+
+
+    //Execução do jogo
     do
     {
         // Colocação das peças
