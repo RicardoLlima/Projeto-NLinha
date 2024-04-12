@@ -124,7 +124,6 @@ int main()
     Lines = WinSeq;
     Columns = WinSeq;
     
-
     Columns = Columns * 2;
 
     // Montagem e demonstração do tabuleiro
@@ -133,15 +132,17 @@ int main()
 
     //Ler Jogadores
 
+    /*for(idxPl = 0; idxPl < 2;idxPl++)
+    {
         printf("\nBem-vindo Jogador %d", idxPl+1);
 
         printf("\nIndique o seu nome :");
         scanf("%49s", &player[idxPl].nome);
-        printf("Indique o seu idade :");
+        printf("Indique o numero de jogos realizados :");
         scanf("%d", &player[idxPl].JogosRealizados);
-        printf("Indique o seu salario :");
+        printf("Indique o seu numero de vitorias :");
         scanf("%d", &player[idxPl].Vitorias);
-
+    }*/
 
 
     //Execução do jogo
@@ -164,11 +165,9 @@ int main()
         ShowBoard(Lines, Columns, board);
         
         // Função de verificação de vitória
-        if(VictoryVerification(Lines,Columns,board,'x',WinSeq))
+        if(VictoryVerification(Lines,Columns/2,board,'X',WinSeq))
             printf("\n\nVITORIA!");
-            
-
-
+        
     } while (1);
 
     return 0;
