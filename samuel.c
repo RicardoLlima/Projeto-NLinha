@@ -87,14 +87,19 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
 
 int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
-    int idxCol, idxLin;
+    int idxCol, idxLin, aux;
     int ColSeqCount = 1, LinSeqCount = 1;
 
+    //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
     for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
     {
-        for (idxCol = 0; idxCol <= Col; idxCol++) // Colunas
+        LinSeqCount = 0;
+
+        for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
         {
-            if(Brd[idxLin][idxCol] == CurrentPlayerChar)
+            aux = (idxCol * 2) - 1;
+        
+            if(Brd[idxLin][aux] == CurrentPlayerChar)
             {
                 LinSeqCount++;
 
@@ -105,6 +110,18 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
                 LinSeqCount = 1; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
         }
     }
+
+    //VERIFICAÇÃO DE VITÓRIA DAS COLUNAS
+    for (idxCol = 0; idxCol < Col; idxCol++) // Colunas
+    {
+        for (idxLin = 1; idxLin <= Lin; idxLin++) // Linhas
+        {
+            
+        }
+    }
+
+
+    return 0;
 }
 
 int main()
