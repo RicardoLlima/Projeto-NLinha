@@ -1,11 +1,62 @@
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <string.h>
 struct Jogador
 {
     char nome[50];
     int JogosRealizados;
     int Vitorias;
 };
+
+typedef struct {
+    int id;
+    char nome[50];
+} Jogador;
+
+
+// Função para ler de ficheiros .csv
+void lerCSV(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    char linha[1024];
+    if (file) {
+        while (fgets(linha, sizeof(linha), file)) {
+            printf("%s", linha);
+        }
+        fclose(file);
+    } else {
+        printf("Erro ao abrir o ficheiro.\n");
+    }
+}
+
+// Função para escrever em ficheiros .csv
+void escreverCSV(const char *filename, const char *dados) {
+    FILE *file = fopen(filename, "a"); 
+    if (file) {
+        fprintf(file, "%s\n", dados);
+        fclose(file);
+    } else {
+        printf("Erro ao abrir o ficheiro.\n");
+    }
+}
+
+
+int adicionarJogador(const char *filename, int id_atual) {
+    Jogador c;
+    id_atual += 1;
+    c.id = id_atual;
+    printf("Digite o nome do novo jogador: ");
+    scanf("%s", c.nome);
+
+    char dados[1024];
+    sprintf(dados, "%d,%s", c.id, c.nome);
+    escreverCSV(filename, dados);
+    return id_atual;
+
+}
+
+void listarJogadores(const char *filename) {
+    lerCSV(filename);
+}
 
 void BuildBoard(int Lin, int Col, char Brd[1000][1000])
 {
@@ -126,6 +177,29 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
 
 int main()
 {
+    int id_atual = 0;
+    int opcao;
+    char filename[] = "jogadores.csv";
+
+    do {
+        printf("**********Bem-vindo!**********");
+        printf("\nMenu:\n1 - Adicionar Jogador\n2 - Listar Jogadores\n0 - Começar Jogo\nEscolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                id_atual = adicionarJogador(filename, id_atual);
+                break;
+            case 2:
+                listarJogadores(filename);
+                break;
+            case 0:
+                break;
+            default:
+                printf("Por favor, tente novamente. Opção invalida!\n");
+        }
+    } while (opcao != 0);
+
     char board[1000][1000];
 
     int WinSeq;
