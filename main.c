@@ -51,7 +51,9 @@ int jogadorExiste(const char *filename, const char *nomeJogador) {
 
     char linha[100];
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-        char *nome = strtok(linha, ",");
+        // Modificando o strtok para pegar a segunda coluna
+        strtok(linha, ","); // Ignora a primeira coluna
+        char *nome = strtok(NULL, ","); // Agora pega a segunda coluna
         if (strcmp(nome, nomeJogador) == 0) {
             fclose(arquivo);
             return 1; // Retorna verdadeiro se o nome do jogador for encontrado
@@ -78,11 +80,12 @@ int adicionarJogador(const char *filename, int *id_atual_ptr) {
         fclose(arquivo);
     }
 
-    (*id_atual_ptr)++;
+     (*id_atual_ptr)++;
     printf("Digite o nome do novo jogador: ");
     
     char nome[50];
     scanf("%s", nome);
+    getchar(); // Limpar o buffer de entrada
 
     if (jogadorExiste(filename, nome)) {
         printf("Jogador com o nome '%s' já existe.\n", nome);
