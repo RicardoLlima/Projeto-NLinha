@@ -63,30 +63,44 @@ int jogadorExiste(const char *filename, const char *nomeJogador) {
 }
 
 // Função para adicionar um jogador ao arquivo CSV
-int adicionarJogador(const char *filename, int id_atual) {
-    Jogador c;
-    //(*id_atual) += 1;
-    c.id = id_atual;
-    printf("VELHOTE '%d'", c.id);
-    printf("Digite o nome do novo jogador: ");
-    scanf("%s", c.nome);
+int adicionarJogador(const char *filename, int *id_atual_ptr) {
+    // Ler o ID mais recente do arquivo CSV
+    FILE *arquivo = fopen(filename, "r");
+    if (arquivo != NULL) {
+        char linha[100];
+        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            char *id_str = strtok(linha, ",");
+            int id = atoi(id_str);
+            if (id > *id_atual_ptr) {
+                *id_atual_ptr = id;
+            }
+        }
+        fclose(arquivo);
+    }
 
-    if (jogadorExiste(filename, c.nome)) {
-        printf("Jogador com o nome '%s' já existe.\n", c.nome);
+    (*id_atual_ptr)++;
+    printf("Digite o nome do novo jogador: ");
+    
+    char nome[50];
+    scanf("%s", nome);
+
+    if (jogadorExiste(filename, nome)) {
+        printf("Jogador com o nome '%s' já existe.\n", nome);
         return 0;
     }
 
-    FILE *arquivo = fopen(filename, "a");
-    if (arquivo == NULL) {
+    FILE *arquivo_saida = fopen(filename, "a");
+    if (arquivo_saida == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return 0;
     }
 
-    fprintf(arquivo, "%d,%s\n", c.id, c.nome);
-    fclose(arquivo);
+    fprintf(arquivo_saida, "%d,%s\n", *id_atual_ptr, nome);
+    fclose(arquivo_saida);
     
-    return id_atual + 1;
+    return 1;
 }
+
 
 void listarJogadores(const char *filename) {
     lerCSV(filename);
@@ -223,7 +237,7 @@ int main()
         switch (opcao) {
             case 1:
                 printf("Valor atual do ID antes de adicionar jogador: %d\n", id_atual);
-                id_atual = adicionarJogador(filename, id_atual);
+                id_atual = adicionarJogador(filename, &id_atual);
                 printf("Valor atual do ID após adicionar jogador: %d\n", id_atual);
                 break;
             case 2:
