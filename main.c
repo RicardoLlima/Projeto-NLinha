@@ -1,16 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-struct Jogador
-{
-    char nome[50];
-    int JogosRealizados;
-    int Vitorias;
-};
+///struct Jogador
+//{
+    //char nome[50];
+    //int JogosRealizados;
+    //int Vitorias;
+//};
 
 typedef struct {
     int id;
     char nome[50];
+    int JogosRealizados;
+    int Vitorias;
 } Jogador;
 
 
@@ -39,19 +41,51 @@ void escreverCSV(const char *filename, const char *dados) {
     }
 }
 
+// Função para verificar se o nome do jogador já existe
+int jogadorExiste(const char *filename, const char *nomeJogador) {
+    FILE *arquivo = fopen(filename, "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 0; // Retorna falso se houver um erro ao abrir o arquivo
+    }
 
+    char linha[100];
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        char *nome = strtok(linha, ",");
+        if (strcmp(nome, nomeJogador) == 0) {
+            fclose(arquivo);
+            return 1; // Retorna verdadeiro se o nome do jogador for encontrado
+        }
+    }
+
+    fclose(arquivo);
+    return 0; // Retorna falso se o nome do jogador não for encontrado
+}
+
+// Função para adicionar um jogador ao arquivo CSV
 int adicionarJogador(const char *filename, int id_atual) {
     Jogador c;
-    id_atual += 1;
+    //(*id_atual) += 1;
     c.id = id_atual;
+    printf("VELHOTE '%d'", c.id);
     printf("Digite o nome do novo jogador: ");
     scanf("%s", c.nome);
 
-    char dados[1024];
-    sprintf(dados, "%d,%s", c.id, c.nome);
-    escreverCSV(filename, dados);
-    return id_atual;
+    if (jogadorExiste(filename, c.nome)) {
+        printf("Jogador com o nome '%s' já existe.\n", c.nome);
+        return 0;
+    }
 
+    FILE *arquivo = fopen(filename, "a");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return 0;
+    }
+
+    fprintf(arquivo, "%d,%s\n", c.id, c.nome);
+    fclose(arquivo);
+    
+    return id_atual + 1;
 }
 
 void listarJogadores(const char *filename) {
@@ -188,7 +222,9 @@ int main()
 
         switch (opcao) {
             case 1:
+                printf("Valor atual do ID antes de adicionar jogador: %d\n", id_atual);
                 id_atual = adicionarJogador(filename, id_atual);
+                printf("Valor atual do ID após adicionar jogador: %d\n", id_atual);
                 break;
             case 2:
                 listarJogadores(filename);
@@ -206,7 +242,7 @@ int main()
     int Lines;
     int Columns;
 
-    struct Jogador player[2];
+    Jogador player[2];
     int idxPl;
 
     printf("Indique a sequencia vencedora: ");
@@ -220,21 +256,6 @@ int main()
     // Montagem e demonstração do tabuleiro
     BuildBoard(Lines, Columns, board);
     ShowBoard(Lines, Columns, board);
-
-    //Ler Jogadores
-
-    /*for(idxPl = 0; idxPl < 2;idxPl++)
-    {
-        printf("\nBem-vindo Jogador %d", idxPl+1);
-
-        printf("\nIndique o seu nome :");
-        scanf("%49s", &player[idxPl].nome);
-        printf("Indique o numero de jogos realizados :");
-        scanf("%d", &player[idxPl].JogosRealizados);
-        printf("Indique o seu numero de vitorias :");
-        scanf("%d", &player[idxPl].Vitorias);
-    }*/
-
 
     //Execução do jogo
     do
