@@ -1,12 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-///struct Jogador
-//{
-    //char nome[50];
-    //int JogosRealizados;
-    //int Vitorias;
-//};
 
 typedef struct {
     int id;
@@ -15,98 +9,143 @@ typedef struct {
     int Vitorias;
 } Jogador;
 
-
-// Função para ler de ficheiros .csv
-void lerCSV(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    char linha[1024];
-    if (file) {
-        while (fgets(linha, sizeof(linha), file)) {
-            printf("%s", linha);
-        }
-        fclose(file);
-    } else {
-        printf("Erro ao abrir o ficheiro.\n");
-    }
-}
-
-// Função para escrever em ficheiros .csv
-void escreverCSV(const char *filename, const char *dados) {
-    FILE *file = fopen(filename, "a"); 
-    if (file) {
-        fprintf(file, "%s\n", dados);
-        fclose(file);
-    } else {
-        printf("Erro ao abrir o ficheiro.\n");
-    }
-}
-
-// Função para verificar se o nome do jogador já existe
+// Função para verificar se o nome do jogador já existe no arquivo
 int jogadorExiste(const char *filename, const char *nomeJogador) {
-    FILE *arquivo = fopen(filename, "r");
-    if (arquivo == NULL) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo.\n");
-        return 0; // Retorna falso se houver um erro ao abrir o arquivo
+        return 0;
     }
 
-    char linha[100];
-    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-        // Modificando o strtok para pegar a segunda coluna
-        strtok(linha, ","); // Ignora a primeira coluna
-        char *nome = strtok(NULL, ","); // Agora pega a segunda coluna
+    char linha[50 * 2]; // Para armazenar o ID e o nome do jogador numa linha
+    char nome[50];
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        // Extrair o nome do jogador da linha
+        sscanf(linha, "%*d,%s", nome);
+        // Comparar o nome do jogador com o nome fornecido
         if (strcmp(nome, nomeJogador) == 0) {
-            fclose(arquivo);
+            fclose(file);
             return 1; // Retorna verdadeiro se o nome do jogador for encontrado
         }
     }
 
-    fclose(arquivo);
+    fclose(file);
     return 0; // Retorna falso se o nome do jogador não for encontrado
 }
 
-// Função para adicionar um jogador ao arquivo CSV
-int adicionarJogador(const char *filename, int *id_atual_ptr) {
-    // Ler o ID mais recente do arquivo CSV
-    FILE *arquivo = fopen(filename, "r");
-    if (arquivo != NULL) {
-        char linha[100];
-        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-            char *id_str = strtok(linha, ",");
-            int id = atoi(id_str);
-            if (id > *id_atual_ptr) {
-                *id_atual_ptr = id;
-            }
-        }
-        fclose(arquivo);
+// Função para obter o próximo ID disponível
+int obterProximoID(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        return 1; // Se o arquivo não existir, retorna 1 como o primeiro ID
     }
 
-     (*id_atual_ptr)++;
-    printf("Digite o nome do novo jogador: ");
-    
-    char nome[50];
-    scanf("%s", nome);
-    getchar(); // Limpar o buffer de entrada
-
-    if (jogadorExiste(filename, nome)) {
-        printf("Jogador com o nome '%s' já existe.\n", nome);
-        return 0;
+    int id;
+    char linha[50]; // Para armazenar o ID e o nome do jogador em uma linha
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        // Ler o ID do jogador da linha
+        sscanf(linha, "%d,", &id);
     }
 
-    FILE *arquivo_saida = fopen(filename, "a");
-    if (arquivo_saida == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return 0;
-    }
-
-    fprintf(arquivo_saida, "%d,%s\n", *id_atual_ptr, nome);
-    fclose(arquivo_saida);
-    
-    return 1;
+    fclose(file);
+    return id + 1; // Retorna o próximo ID após o último encontrado no arquivo
 }
 
+// Função para remover um jogador pelo seu ID
+void removerJogador(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
 
+    int id;
+    printf("Digite o ID do jogador que deseja remover: ");
+    scanf("%d", &id);
+
+    // Criar um arquivo temporário para escrever os jogadores, exceto aquele que queremos remover
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        printf("Erro ao criar arquivo temporário.\n");
+        fclose(file);
+        return;
+    }
+
+    char linha[50];
+    int jogadorEncontrado = 0; // Variável para indicar se o jogador foi encontrado
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        int jogadorID;
+        sscanf(linha, "%d,", &jogadorID);
+        if (jogadorID == id) {
+            jogadorEncontrado = 1;
+        } else {
+            // Se o ID do jogador não for igual ao ID fornecido, escreva a linha no arquivo temporário
+            fprintf(tempFile, "%s", linha);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Remover o arquivo original apenas se o jogador foi encontrado e removido
+    if (jogadorEncontrado) {
+        remove(filename);
+        // Renomear o arquivo temporário para o nome do arquivo original
+        rename("temp.csv", filename);
+        printf("Jogador com o ID '%d' foi removido com sucesso.\n", id);
+    } else {
+        // Se o jogador não foi encontrado, exibir uma mensagem de erro
+        printf("Erro: Jogador com o ID '%d' não encontrado.\n", id);
+        remove("temp.csv"); // Remover o arquivo temporário
+    }
+}
+
+// Função para adicionar um novo jogador ao arquivo CSV
+void adicionarJogador(const char *filename) {
+    FILE *file = fopen(filename, "a");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    // Ler o nome do novo jogador
+    char nome[50];
+    printf("Digite o nome do novo jogador: ");
+    scanf("%s", nome);
+
+    // Verificar se o jogador já existe
+    if (jogadorExiste(filename, nome)) {
+        printf("Jogador com o nome '%s' já existe.\n", nome);
+        fclose(file);
+        return;
+    }
+
+    // Gerar um novo ID para o jogador
+    int novoID = obterProximoID(filename);
+
+    // Escrever o novo jogador no arquivo CSV
+    fprintf(file, "%d,%s\n", novoID, nome);
+
+    printf("Jogador '%s' adicionado com sucesso (ID: %d).\n", nome, novoID);
+
+    fclose(file);
+}
+
+// Função para listar todos os jogadores no arquivo
 void listarJogadores(const char *filename) {
-    lerCSV(filename);
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    printf("ID\tNome\n");
+    char linha[50];
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        printf("%s", linha);
+    }
+
+    fclose(file);
 }
 
 void BuildBoard(int Lin, int Col, char Brd[1000][1000])
@@ -228,25 +267,27 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
 
 int main()
 {
-    int id_atual = 0;
     int opcao;
     char filename[] = "jogadores.csv";
 
     do {
         printf("**********Bem-vindo!**********");
-        printf("\nMenu:\n1 - Adicionar Jogador\n2 - Listar Jogadores\n0 - Começar Jogo\nEscolha uma opcao: ");
+        printf("\nMenu:\n1 - Adicionar Jogador\n2 - Listar Jogadores\n3 - Remover Jogador\n4 - Comecar Jogo\n0 - Sair\nEscolha uma opcao: ");
         scanf("%d", &opcao);
 
         switch (opcao) {
             case 1:
-                printf("Valor atual do ID antes de adicionar jogador: %d\n", id_atual);
-                id_atual = adicionarJogador(filename, &id_atual);
-                printf("Valor atual do ID após adicionar jogador: %d\n", id_atual);
+                adicionarJogador(filename);
                 break;
             case 2:
                 listarJogadores(filename);
                 break;
+            case 3:
+                removerJogador(filename);
+                break;
             case 0:
+                return 0;
+            case 4:
                 break;
             default:
                 printf("Por favor, tente novamente. Opção invalida!\n");
