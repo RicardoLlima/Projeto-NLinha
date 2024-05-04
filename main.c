@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <locale.h>
 typedef struct {
     int id;
     char nome[50];
@@ -267,6 +267,8 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
 
 int main()
 {
+    setlocale(LC_ALL, "pt_PT.UTF-8");
+
     int opcao;
     char filename[] = "jogadores.csv";
 
@@ -285,14 +287,15 @@ int main()
             case 3:
                 removerJogador(filename);
                 break;
+            case 4:
+                printf("A começar o jogo...\n");
+                break;
             case 0:
                 return 0;
-            case 4:
-                break;
             default:
                 printf("Por favor, tente novamente. Opção invalida!\n");
         }
-    } while (opcao != 0);
+    } while (opcao != 4 && opcao != 0);
 
     char board[1000][1000];
 
@@ -318,26 +321,39 @@ int main()
     //Execução do jogo
     do
     {
-        // Colocação das peças
-        int PcQntty;
-        int StrtIdx;
-        int Drctn; // 1 - Direita   0 - Esquerda
-        char piece;
+        int opcao_jogo;
+        printf("\nJogo:\n1 - Colocar Peça\n2 - Detalhes do Jogo\n3 - Desistir\n");
+        scanf("%d", &opcao_jogo);
 
-        printf("\n\nQuantidade de pecas a jogar: ");
-        scanf("%d", &PcQntty);
-        printf("Posicao Inicial: ");
-        scanf("%d", &StrtIdx);
-        printf("Sentido da jogada: ");
-        scanf("%d", &Drctn);
+        switch(opcao_jogo){
+            case 1:
+                // Colocação das peças
+                int PcQntty;
+                int StrtIdx;
+                int Drctn; // 1 - Direita   0 - Esquerda
+                char piece;
 
-        InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
-        ShowBoard(Lines, Columns, board);
-        
-        // Função de verificação de vitória
-        if(VictoryVerification(Lines,Columns/2,board,'X',WinSeq))
-            printf("\n\nVITORIA!");
-        
+                printf("\nQuantidade de pecas a jogar: ");
+                scanf("%d", &PcQntty);
+                printf("Posicao Inicial: ");
+                scanf("%d", &StrtIdx);
+                printf("Sentido da jogada: ");
+                scanf("%d", &Drctn);
+
+                InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
+                ShowBoard(Lines, Columns, board);
+                
+                // Função de verificação de vitória
+                if(VictoryVerification(Lines,Columns/2,board,'X',WinSeq))
+                    printf("\n\nVITORIA!");
+                
+                return 1;
+            case 2:
+                printf("Ainda não disponivel :(");
+                return 0;
+            case 3:
+            return 0;
+        }
     } while (1);
 
     return 0;
