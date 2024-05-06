@@ -147,20 +147,6 @@ int main()
     BuildBoard(Lines, Columns, board);
     ShowBoard(Lines, Columns, board);
 
-    //Ler Jogadores
-
-    /*for(idxPl = 0; idxPl < 2;idxPl++)
-    {
-        printf("\nBem-vindo Jogador %d", idxPl+1);
-
-        printf("\nIndique o seu nome :");
-        scanf("%49s", &player[idxPl].nome);
-        printf("Indique o numero de jogos realizados :");
-        scanf("%d", &player[idxPl].JogosRealizados);
-        printf("Indique o seu numero de vitorias :");
-        scanf("%d", &player[idxPl].Vitorias);
-    }*/
-
 
     //Execução do jogo
     do
