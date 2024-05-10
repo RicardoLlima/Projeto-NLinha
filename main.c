@@ -2,12 +2,52 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <sqlite3.h>
 typedef struct {
     int id;
     char nome[50];
     int JogosRealizados;
     int Vitorias;
 } Jogador;
+
+sqlite3 *db;
+char *zErrMsg = 0;
+int rc;
+
+// Função de retorno para consultas SQL
+static int callback(void *NaoUsado, int argc, char **argv, char **azColName) {
+    int i;
+    for(i = 0; i<argc; i++) {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("\n");
+    return 0;
+}
+
+// Função para abrir a base de dados
+void abrirBaseDeDados() {
+    rc = sqlite3_open("jogadores.db", &db);
+    if (rc) {
+        fprintf(stderr, "Não foi possível abrir a base de dados: %s\n", sqlite3_errmsg(db));
+        exit(0);
+    } else {
+        fprintf(stdout, "Base de dados aberta com sucesso.\n");
+    }
+}
+
+// Função para criar a tabela de clientes, se necessário
+void criarTabelaClientes() {
+    const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
+                      "ID INT PRIMARY KEY NOT NULL,"
+                      "NOME TEXT NOT NULL);";
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else {
+        fprintf(stdout, "Tabela JOGADORES criada ou já existente.\n");
+    }
+}
 
 // Função para verificar se o nome do jogador já existe no arquivo
 int jogadorExiste(const char *filename, const char *nomeJogador) {
@@ -269,6 +309,9 @@ int main()
 {
     setlocale(LC_ALL, "pt_PT.UTF-8");
 
+    abrirBaseDeDados();
+    criarTabelaClientes();
+
     int opcao;
     char filename[] = "jogadores.csv";
 
@@ -279,13 +322,13 @@ int main()
 
         switch (opcao) {
             case 1:
-                adicionarJogador(filename);
+                ;
                 break;
             case 2:
-                listarJogadores(filename);
+                ;
                 break;
             case 3:
-                removerJogador(filename);
+                ;
                 break;
             case 4:
                 printf("A começar o jogo...\n");
