@@ -95,7 +95,7 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
     {
         LinSeqCount = 0;
 
-        for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
+        for (idxCol = 0; idxCol < Col; idxCol++) // Colunas
         {
             aux = (idxCol * 2) - 1;
         
@@ -111,12 +111,23 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
         }
     }
 
+
     //VERIFICAÇÃO DE VITÓRIA DAS COLUNAS
-    for (idxCol = 0; idxCol < Col; idxCol++) // Colunas
+    for (idxCol = 0; idxCol <= Col; idxCol++) // Colunas
     {
-        for (idxLin = 1; idxLin <= Lin; idxLin++) // Linhas
+        LinSeqCount = 0;
+
+        for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
         {
-            
+            if(Brd[idxLin][idxCol] == CurrentPlayerChar)
+            {
+                LinSeqCount++;
+
+                if(LinSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                LinSeqCount = 1; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
         }
     }
 
