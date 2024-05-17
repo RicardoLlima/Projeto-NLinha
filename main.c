@@ -38,8 +38,10 @@ void abrirBaseDeDados() {
 // Função para criar a tabela de clientes, se necessário
 void criarTabelaClientes() {
     const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
-                      "ID INT PRIMARY KEY NOT NULL,"
-                      "NOME TEXT NOT NULL);";
+                      "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                      "NOME TEXT NOT NULL,"
+                      "JOGOSJOGADOS INT DEFAULT 0,"
+                      "VITORIAS INT DEFAULT 0);";
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
@@ -49,143 +51,50 @@ void criarTabelaClientes() {
     }
 }
 
-// Função para verificar se o nome do jogador já existe no arquivo
-int jogadorExiste(const char *filename, const char *nomeJogador) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+// Função para adicionar um cliente à base de dados
+int adicionarJogador() {
+    Jogador c;
+    printf("Introduza o nome do novo jogador: ");
+    scanf(" %s", c.nome);  
+    char sql[200];
+    sprintf(sql, "INSERT INTO JOGADORES (NOME) VALUES ('%s');", c.nome);
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return -1;
+    } else {
+        fprintf(stdout, "Jogador adicionado com sucesso.\n");
+        return sqlite3_last_insert_rowid(db);
+    }
+}
+
+// Função para remover um jogador à base de dados
+int removerJogador() {
+    Jogador c;
+    printf("Introduza o ID do jogador: ");
+    scanf("%d", &c.id);  
+    char sql[200]; 
+    sprintf(sql, "DELETE FROM JOGADORES WHERE ID = %d;", c.id);
+        rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+        return -1;
+    } else {
+        fprintf(stdout, "Jogador removido com sucesso.\n");
         return 0;
     }
-
-    char linha[50 * 2]; // Para armazenar o ID e o nome do jogador numa linha
-    char nome[50];
-    while (fgets(linha, sizeof(linha), file) != NULL) {
-        // Extrair o nome do jogador da linha
-        sscanf(linha, "%*d,%s", nome);
-        // Comparar o nome do jogador com o nome fornecido
-        if (strcmp(nome, nomeJogador) == 0) {
-            fclose(file);
-            return 1; // Retorna verdadeiro se o nome do jogador for encontrado
-        }
-    }
-
-    fclose(file);
-    return 0; // Retorna falso se o nome do jogador não for encontrado
 }
 
-// Função para obter o próximo ID disponível
-int obterProximoID(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        return 1; // Se o arquivo não existir, retorna 1 como o primeiro ID
+// Função para apresentar todos os jogadores
+void listarJogador() {
+    const char *sql = "SELECT * FROM JOGADORES;";
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
     }
-
-    int id;
-    char linha[50]; // Para armazenar o ID e o nome do jogador em uma linha
-    while (fgets(linha, sizeof(linha), file) != NULL) {
-        // Ler o ID do jogador da linha
-        sscanf(linha, "%d,", &id);
-    }
-
-    fclose(file);
-    return id + 1; // Retorna o próximo ID após o último encontrado no arquivo
-}
-
-// Função para remover um jogador pelo seu ID
-void removerJogador(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-
-    int id;
-    printf("Digite o ID do jogador que deseja remover: ");
-    scanf("%d", &id);
-
-    // Criar um arquivo temporário para escrever os jogadores, exceto aquele que queremos remover
-    FILE *tempFile = fopen("temp.csv", "w");
-    if (tempFile == NULL) {
-        printf("Erro ao criar arquivo temporário.\n");
-        fclose(file);
-        return;
-    }
-
-    char linha[50];
-    int jogadorEncontrado = 0; // Variável para indicar se o jogador foi encontrado
-    while (fgets(linha, sizeof(linha), file) != NULL) {
-        int jogadorID;
-        sscanf(linha, "%d,", &jogadorID);
-        if (jogadorID == id) {
-            jogadorEncontrado = 1;
-        } else {
-            // Se o ID do jogador não for igual ao ID fornecido, escreva a linha no arquivo temporário
-            fprintf(tempFile, "%s", linha);
-        }
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    // Remover o arquivo original apenas se o jogador foi encontrado e removido
-    if (jogadorEncontrado) {
-        remove(filename);
-        // Renomear o arquivo temporário para o nome do arquivo original
-        rename("temp.csv", filename);
-        printf("Jogador com o ID '%d' foi removido com sucesso.\n", id);
-    } else {
-        // Se o jogador não foi encontrado, exibir uma mensagem de erro
-        printf("Erro: Jogador com o ID '%d' não encontrado.\n", id);
-        remove("temp.csv"); // Remover o arquivo temporário
-    }
-}
-
-// Função para adicionar um novo jogador ao arquivo CSV
-void adicionarJogador(const char *filename) {
-    FILE *file = fopen(filename, "a");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-
-    // Ler o nome do novo jogador
-    char nome[50];
-    printf("Digite o nome do novo jogador: ");
-    scanf("%s", nome);
-
-    // Verificar se o jogador já existe
-    if (jogadorExiste(filename, nome)) {
-        printf("Jogador com o nome '%s' já existe.\n", nome);
-        fclose(file);
-        return;
-    }
-
-    // Gerar um novo ID para o jogador
-    int novoID = obterProximoID(filename);
-
-    // Escrever o novo jogador no arquivo CSV
-    fprintf(file, "%d,%s\n", novoID, nome);
-
-    printf("Jogador '%s' adicionado com sucesso (ID: %d).\n", nome, novoID);
-
-    fclose(file);
-}
-
-// Função para listar todos os jogadores no arquivo
-void listarJogadores(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
-
-    printf("ID\tNome\n");
-    char linha[50];
-    while (fgets(linha, sizeof(linha), file) != NULL) {
-        printf("%s", linha);
-    }
-
-    fclose(file);
 }
 
 void BuildBoard(int Lin, int Col, char Brd[1000][1000])
@@ -308,12 +217,10 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
 int main()
 {
     setlocale(LC_ALL, "pt_PT.UTF-8");
-
     abrirBaseDeDados();
     criarTabelaClientes();
 
     int opcao;
-    char filename[] = "jogadores.csv";
 
     do {
         printf("**********Bem-vindo!**********");
@@ -322,18 +229,20 @@ int main()
 
         switch (opcao) {
             case 1:
-                ;
+                adicionarJogador();
                 break;
             case 2:
-                ;
+                listarJogador();
                 break;
             case 3:
-                ;
+                removerJogador();
                 break;
             case 4:
+                sqlite3_close(db);
                 printf("A começar o jogo...\n");
                 break;
             case 0:
+                printf("Jogo abortado com sucesso");
                 return 0;
             default:
                 printf("Por favor, tente novamente. Opção invalida!\n");
