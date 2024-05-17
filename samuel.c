@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 struct Jogador
 {
@@ -7,7 +8,9 @@ struct Jogador
     int Vitorias;
 };
 
-void BuildBoard(int Lin, int Col, char Brd[1000][1000])
+#define Medida 20
+
+void BuildBoard(int Lin, int Col, char Brd[Medida][Medida])
 {
     int idxCol, idxLin, aux;
 
@@ -25,7 +28,7 @@ void BuildBoard(int Lin, int Col, char Brd[1000][1000])
     }
 }
 
-void ShowBoard(int Lin, int Col, char Brd[1000][1000])
+void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
 {
     int idxCol, idxLin;
 
@@ -39,7 +42,7 @@ void ShowBoard(int Lin, int Col, char Brd[1000][1000])
     }
 }
 
-void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[1000][1000], int LinNum)   
+void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[Medida][Medida], int LinNum)   
 {
     // StartIndex é o numero da coluna
     // PieceType é o caracter a jogar
@@ -65,7 +68,7 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
 
             if (Brd[idxLin][auxStartIndex] == '_')
             {
-                Brd[idxLin][auxStartIndex] = 'X';
+                Brd[idxLin][auxStartIndex] = PieceType;
                 break;
             }
         }
@@ -85,9 +88,9 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
     }
 }
 
-int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
+int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
-    int idxCol, idxLin, aux;
+    int idxCol, idxLin, aux, idxDig;
     int ColSeqCount = 1, LinSeqCount = 1;
 
     //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
@@ -95,7 +98,7 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
     {
         LinSeqCount = 0;
 
-        for (idxCol = 0; idxCol < Col; idxCol++) // Colunas
+        for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
         {
             aux = (idxCol * 2) - 1;
         
@@ -107,29 +110,53 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
                     return 1;
             }
             else
-                LinSeqCount = 1; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
         }
     }
 
 
     //VERIFICAÇÃO DE VITÓRIA DAS COLUNAS
-    for (idxCol = 0; idxCol <= Col; idxCol++) // Colunas
+    for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
     {
         LinSeqCount = 0;
 
+        aux = (idxCol * 2) - 1;
+
         for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
         {
-            if(Brd[idxLin][idxCol] == CurrentPlayerChar)
+            if(Brd[idxLin][aux] == CurrentPlayerChar)
             {
                 LinSeqCount++;
 
                 if(LinSeqCount == VictSeq)
                     return 1;
+                
             }
             else
-                LinSeqCount = 1; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
         }
     }
+
+
+    //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
+
+    //DIREITA PARA ESQUERDA
+    for(idxDig = -1; idxDig <= VictSeq-1; idxDig++)
+    {
+        if(Brd[idxDig + 1][idxDig + 1] == CurrentPlayerChar)
+        {
+            LinSeqCount++;
+
+            if(LinSeqCount == VictSeq)
+                return 1;
+                
+        }
+        else
+            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+    }
+
+    //ESQUERDA PARA DIREITA
+
 
 
     return 0;
@@ -137,7 +164,7 @@ int VictoryVerification(int Lin, int Col, char Brd[1000][1000], char CurrentPlay
 
 int main()
 {
-    char board[1000][1000];
+    char board[Medida][Medida];
 
     int WinSeq;
     int Lines;
@@ -145,6 +172,8 @@ int main()
 
     struct Jogador player[2];
     int idxPl;
+
+    bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
@@ -168,7 +197,22 @@ int main()
         int Drctn; // 1 - Direita   0 - Esquerda
         char piece;
 
-        printf("\n\nQuantidade de pecas a jogar: ");
+        //Verificação de qual jogador vai jogar         
+        //Jogador 1 - TRUE     Jogador 2 - FALSE
+        if(PlayerRole)
+        {
+            printf("\n\nJOGADOR 1:\n");
+            piece = 'X';
+            PlayerRole = false;
+        }
+        else
+        {
+            printf("\n\nJOGADOR 2:\n");
+            piece = 'O';
+            PlayerRole = true;
+        }
+
+        printf("\nQuantidade de pecas a jogar: ");
         scanf("%d", &PcQntty);
         printf("Posicao Inicial: ");
         scanf("%d", &StrtIdx);
@@ -179,9 +223,20 @@ int main()
         ShowBoard(Lines, Columns, board);
         
         // Função de verificação de vitória
-        if(VictoryVerification(Lines,Columns/2,board,'X',WinSeq))
-            printf("\n\nVITORIA!");
-        
+        if (VictoryVerification(Lines, Columns / 2, board, piece, WinSeq))
+        {
+            if (PlayerRole)
+            {
+                printf("VITORIA DO JOGADOR 1!!");
+            }
+            else
+            {
+                printf("VITORIA DO JOGADOR 2!!");
+            }
+
+            return 0;
+        }
+
     } while (1);
 
     return 0;
