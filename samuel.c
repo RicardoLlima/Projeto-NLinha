@@ -90,7 +90,7 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
 
 int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
-    int idxCol, idxLin, aux, idxDig;
+    int idxCol, idxLin, aux, idxDigLin, idxDigCol;
     int ColSeqCount = 1, LinSeqCount = 1;
 
     //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
@@ -141,11 +141,11 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
     //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
 
     //DIREITA PARA ESQUERDA
-    for(idxDig = 0; idxDig < VictSeq; idxDig++) //Linhas
+    for(idxDigLin = 0, idxDigCol = VictSeq; idxDigLin < VictSeq; idxDigLin++, idxDigCol--) //Linhas
     {
-        aux = ((idxDig + 1) * 2) - 1; //Colunas
+        aux = (idxDigCol * 2) - 1; //Colunas
 
-        if(Brd[idxDig][aux] == CurrentPlayerChar)
+        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
         {
             LinSeqCount++;
     
@@ -157,7 +157,20 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
     }
 
     //ESQUERDA PARA DIREITA
+    for(idxDigLin = 0; idxDigLin < VictSeq; idxDigLin++) //Linhas
+    {
+        aux = ((idxDigLin + 1) * 2) - 1; //Colunas
 
+        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
+        {
+            LinSeqCount++;
+    
+            if(LinSeqCount == VictSeq)
+                return 1;
+        }
+        else
+            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+    }
 
 
     return 0;
@@ -204,20 +217,18 @@ int main()
         {
             printf("\n\nJOGADOR 1:\n");
             piece = 'X';
-            PlayerRole = false;
         }
         else
         {
             printf("\n\nJOGADOR 2:\n");
             piece = 'O';
-            PlayerRole = true;
         }
 
         printf("\nQuantidade de pecas a jogar: ");
         scanf("%d", &PcQntty);
         printf("Posicao Inicial: ");
         scanf("%d", &StrtIdx);
-        printf("Sentido da jogada: ");
+        printf("Sentido da jogada: \n");
         scanf("%d", &Drctn);
 
         InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
@@ -228,15 +239,20 @@ int main()
         {
             if (PlayerRole)
             {
-                printf("VITORIA DO JOGADOR 1!!");
+                printf("\n\nVITORIA DO JOGADOR 1!!\n");
             }
             else
             {
-                printf("VITORIA DO JOGADOR 2!!");
+                printf("\n\nVITORIA DO JOGADOR 2!!\n");
             }
 
             return 0;
         }
+
+        if(PlayerRole) //Manipular a variavel para que o jogador não mude, se vencer
+            PlayerRole = false;
+        else
+            PlayerRole = true;
 
     } while (1);
 
