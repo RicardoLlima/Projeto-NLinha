@@ -141,15 +141,16 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
     //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
 
     //DIREITA PARA ESQUERDA
-    for(idxDig = -1; idxDig <= VictSeq-1; idxDig++)
+    for(idxDig = 0; idxDig < VictSeq; idxDig++) //Linhas
     {
-        if(Brd[idxDig + 1][idxDig + 1] == CurrentPlayerChar)
+        aux = ((idxDig + 1) * 2) - 1; //Colunas
+
+        if(Brd[idxDig][aux] == CurrentPlayerChar)
         {
             LinSeqCount++;
-
+    
             if(LinSeqCount == VictSeq)
                 return 1;
-                
         }
         else
             LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
