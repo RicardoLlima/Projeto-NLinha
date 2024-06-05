@@ -189,6 +189,14 @@ int main()
 
     bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
+    printf("Indique o nome do primeiro jogador: ");
+    scanf("%s", &player[0].nome);
+    printf("Indique o nome do segundo jogador: ");
+    scanf("%s", &player[1].nome);
+
+    //Verificar pela base de dados se o jogador já existe
+    //--------------------------------------------------
+
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
 
@@ -215,12 +223,12 @@ int main()
         //Jogador 1 - TRUE     Jogador 2 - FALSE
         if(PlayerRole)
         {
-            printf("\n\nJOGADOR 1:\n");
+            printf("\n\nJOGADOR %s:\n", player[0].nome);
             piece = 'X';
         }
         else
         {
-            printf("\n\nJOGADOR 2:\n");
+            printf("\n\nJOGADOR %s:\n", player[1].nome);
             piece = 'O';
         }
 
@@ -239,11 +247,11 @@ int main()
         {
             if (PlayerRole)
             {
-                printf("\n\nVITORIA DO JOGADOR 1!!\n");
+                printf("\n\nJOGADOR %s:\n", player[0].nome);
             }
             else
             {
-                printf("\n\nVITORIA DO JOGADOR 2!!\n");
+                printf("\n\nJOGADOR %s:\n", player[1].nome);
             }
 
             return 0;
