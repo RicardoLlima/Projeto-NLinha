@@ -291,6 +291,10 @@ int main()
     Jogador player[2];
     int idxPl;
 
+    // Variaveis de controlo do numero de vitorias do jogo a decorrer
+    int CntVictPlayer1 = 0;
+    int CntVictPlayer2 = 0;
+
     bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
 
@@ -386,10 +390,14 @@ int main()
                     if (PlayerRole)
                     {
                         printf("\n\nVITORIA DO JOGADOR %s:\n", player[0].nome);
+                        CntVictPlayer1++;
+                        //Dar update no campo das vitorias do jogador na BD
                     }
                     else
                     {
                         printf("\n\nVITORIA DO JOGADOR %s:\n", player[1].nome);
+                        CntVictPlayer2++;
+                        //Dar update no campo das vitorias do jogador na BD
                     }
 
                     return 0;
@@ -402,7 +410,9 @@ int main()
 
 
             case 2:
-                printf("Ainda não disponivel :(");
+                    printf("\nDETALHES DO JOGO: \n");
+                    printf("\nJOGADOR %s: %d vitorias \n", player[0].nome, CntVictPlayer1);
+                    printf("JOGADOR %s: %d vitorias \n", player[1].nome, CntVictPlayer2);
                 return 0;
             case 3:
                 return 0;
