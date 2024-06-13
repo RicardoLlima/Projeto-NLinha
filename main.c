@@ -328,17 +328,23 @@ int main()
 
     printf("Indique o nome do primeiro jogador: ");
     scanf("%s", &player[0].nome);
+
+    //Verificar pela base de dados se o jogador 1 já existe
+    //Se existir, carregar a informação dele para a struct do jogador 1
+    //--------------------------------------------------
+
     printf("Indique o nome do segundo jogador: ");
     scanf("%s", &player[1].nome);
 
-    //Verificar pela base de dados se o jogador já existe
+    //Verificar pela base de dados se o jogador 2 já existe
+    //Se existir, carregar a informação dele para a struct do jogador 2
     //--------------------------------------------------
+
 
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
 
     Lines = WinSeq;
-    Columns = WinSeq;
     
     Columns = Columns * 2;
 
