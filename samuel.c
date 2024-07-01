@@ -189,19 +189,20 @@ int main()
 
     bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
-    printf("Indique o nome do primeiro jogador: ");
+    printf("\nIndique o nome do primeiro jogador: ");
     scanf("%s", &player[0].nome);
     printf("Indique o nome do segundo jogador: ");
     scanf("%s", &player[1].nome);
+    printf("Indique a sequencia vencedora: ");
+    scanf("%d", &WinSeq);
 
     //Verificar pela base de dados se o jogador já existe
     //--------------------------------------------------
 
-    printf("Indique a sequencia vencedora: ");
-    scanf("%d", &WinSeq);
-
-    Lines = WinSeq;
-    Columns = WinSeq;
+    printf("\nIndique o numero de colunas: ");
+    scanf("%d", &Columns);
+    printf("Indique o numero de linhas: ");
+    scanf("%d", &Lines);
     
     Columns = Columns * 2;
 
@@ -236,7 +237,7 @@ int main()
         scanf("%d", &PcQntty);
         printf("Posicao Inicial: ");
         scanf("%d", &StrtIdx);
-        printf("Sentido da jogada: \n");
+        printf("Sentido da jogada: ");
         scanf("%d", &Drctn);
 
         InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
