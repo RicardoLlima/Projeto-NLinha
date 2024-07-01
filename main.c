@@ -35,11 +35,11 @@ void abrirBaseDeDados() {
     }
 }
 
-// Função para criar a tabela de clientes, se necessário
+// Função para criar a tabela de jogadores, se necessário
 void criarTabelaClientes() {
     const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "NOME TEXT NOT NULL,"
+                      "NOME TEXT NOT NULL UNIQUE,"
                       "JOGOSJOGADOS INT DEFAULT 0,"
                       "VITORIAS INT DEFAULT 0);";
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
@@ -51,12 +51,31 @@ void criarTabelaClientes() {
     }
 }
 
-// Função para adicionar um cliente à base de dados
+// Função para adicionar um jogador à base de dados
 int adicionarJogador() {
     Jogador c;
     printf("Introduza o nome do novo jogador: ");
-    scanf(" %s", c.nome);  
+    scanf(" %99s", c.nome);  // Certifique-se de que não ultrapasse o limite do buffer
+    
+    // Verifique se o nome já existe na base de dados
     char sql[200];
+    sprintf(sql, "SELECT COUNT(*) FROM JOGADORES WHERE NOME = '%s';", c.nome);
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+    
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW && sqlite3_column_int(stmt, 0) > 0) {
+        printf("Erro: O nome do jogador já existe.\n");
+        sqlite3_finalize(stmt);
+        return -1;
+    }
+    sqlite3_finalize(stmt);
+
+    // Insere o novo jogador
     sprintf(sql, "INSERT INTO JOGADORES (NOME) VALUES ('%s');", c.nome);
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if (rc != SQLITE_OK) {
