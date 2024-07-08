@@ -248,11 +248,11 @@ int main()
         {
             if (PlayerRole)
             {
-                printf("\n\nJOGADOR %s:\n", player[0].nome);
+                printf("\n\nVitoria do JOGADOR %s!!\n", player[0].nome);
             }
             else
             {
-                printf("\n\nJOGADOR %s:\n", player[1].nome);
+                printf("\n\nVitoria do JOGADOR %s!!\n", player[1].nome);
             }
 
             return 0;
