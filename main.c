@@ -3,6 +3,7 @@
 #include <string.h>
 #include <locale.h>
 #include <sqlite3.h>
+#include <stdbool.h>
 
 #define Medida 20
 
@@ -13,7 +14,10 @@ typedef struct {
     int Vitorias;
 } Jogador;
 
+Jogador player[2]; // Array para os dois jogadores
 
+int CntVictPlayer1 = 0;
+int CntVictPlayer2 = 0;
 sqlite3 *db;
 char *zErrMsg = 0;
 int rc;
@@ -43,7 +47,7 @@ void abrirBaseDeDados() {
     }
 }
 
-// Função para criar a tabela de clientes, se necessário
+// Função para criar a tabela de jogadores, se necessário
 void criarTabelaClientes() {
     const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -59,7 +63,7 @@ void criarTabelaClientes() {
     }
 }
 
-// Função para adicionar um cliente à base de dados
+// Função para adicionar um jogador à base de dados
 int adicionarJogador() {
     Jogador c;
     printf("Introduza o nome do novo jogador: ");
@@ -102,6 +106,29 @@ void listarJogador() {
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
+    }
+}
+
+// Função para atualizar as estatísticas após o jogo
+void atualizarEstatisticasEVencedor() {
+    if (CntVictPlayer1 > CntVictPlayer2) {
+        printf("\n\nJogador 1 venceu a partida!");
+        char sql[200];
+        sprintf(sql, "UPDATE JOGADORES SET JOGOSJOGADOS = JOGOSJOGADOS + 1, VITORIAS = VITORIAS + 1 WHERE ID = %d;", player[0].id);
+        rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+            sqlite3_free(zErrMsg);
+        }
+    } else {
+        printf("\n\nJogador 2 venceu a partida!");
+        char sql[200];
+        sprintf(sql, "UPDATE JOGADORES SET JOGOSJOGADOS = JOGOSJOGADOS + 1, VITORIAS = VITORIAS + 1 WHERE ID = %d;", player[1].id);
+        rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
+            sqlite3_free(zErrMsg);
+        }
     }
 }
 
@@ -282,7 +309,7 @@ int main()
     criarTabelaClientes();
 
     int opcao;
-    char board[1000][1000];
+    char board[Medida][Medida];
 
     int WinSeq;
     int Lines;
@@ -409,11 +436,7 @@ int main()
                     return 0;
                 }
 
-                if (PlayerRole) // Manipular a variavel para que o jogador não mude, se vencer
-                    PlayerRole = false;
-                else
-                    PlayerRole = true;
-
+                PlayerRole = !PlayerRole;
 
             case 2:
                     printf("\nDETALHES DO JOGO: \n");
