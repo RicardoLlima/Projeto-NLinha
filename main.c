@@ -5,7 +5,7 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 
-#define Medida 20
+#define Medida 14
 
 typedef struct {
     int id;
@@ -14,10 +14,6 @@ typedef struct {
     int Vitorias;
 } Jogador;
 
-Jogador player[2]; // Array para os dois jogadores
-
-int CntVictPlayer1 = 0;
-int CntVictPlayer2 = 0;
 sqlite3 *db;
 char *zErrMsg = 0;
 int rc;
@@ -51,7 +47,7 @@ void abrirBaseDeDados() {
 void criarTabelaClientes() {
     const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                      "NOME TEXT NOT NULL,"
+                      "NOME TEXT NOT NULL UNIQUE,"
                       "JOGOSJOGADOS INT DEFAULT 0,"
                       "VITORIAS INT DEFAULT 0);";
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
@@ -69,6 +65,9 @@ int adicionarJogador() {
     printf("Introduza o nome do novo jogador: ");
     scanf(" %s", c.nome);  
     char sql[200];
+
+
+
     sprintf(sql, "INSERT INTO JOGADORES (NOME) VALUES ('%s');", c.nome);
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if (rc != SQLITE_OK) {
@@ -109,29 +108,33 @@ void listarJogador() {
     }
 }
 
-// Função para atualizar as estatísticas após o jogo
-void atualizarEstatisticasEVencedor() {
-    if (CntVictPlayer1 > CntVictPlayer2) {
-        printf("\n\nJogador 1 venceu a partida!");
-        char sql[200];
-        sprintf(sql, "UPDATE JOGADORES SET JOGOSJOGADOS = JOGOSJOGADOS + 1, VITORIAS = VITORIAS + 1 WHERE ID = %d;", player[0].id);
-        rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
-        if (rc != SQLITE_OK) {
-            fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
-            sqlite3_free(zErrMsg);
-        }
+// Função para carregar jogadores da base de dados
+int verificarCarregarJogador(Jogador *jogador) {
+    char sql[200];
+    sqlite3_stmt *stmt;
+    
+    sprintf(sql, "SELECT ID, NOME, JOGOSJOGADOS, VITORIAS FROM JOGADORES WHERE NOME = '%s';", jogador->nome);
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro ao preparar statement: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        // Carregar dados do jogador na estrutura
+        jogador->id = sqlite3_column_int(stmt, 0);
+        strcpy(jogador->nome, (const char *)sqlite3_column_text(stmt, 1));
+        jogador->JogosRealizados = sqlite3_column_int(stmt, 2);
+        jogador->Vitorias = sqlite3_column_int(stmt, 3);
+        sqlite3_finalize(stmt);
+        return 1; // Jogador encontrado
     } else {
-        printf("\n\nJogador 2 venceu a partida!");
-        char sql[200];
-        sprintf(sql, "UPDATE JOGADORES SET JOGOSJOGADOS = JOGOSJOGADOS + 1, VITORIAS = VITORIAS + 1 WHERE ID = %d;", player[1].id);
-        rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
-        if (rc != SQLITE_OK) {
-            fprintf(stderr, "Erro SQL: %s\n", zErrMsg);
-            sqlite3_free(zErrMsg);
-        }
+        sqlite3_finalize(stmt);
+        return 0; // Jogador não encontrado
     }
 }
-
 
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -324,7 +327,6 @@ int main()
 
     bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
-
     do {
         printf("**********Bem-vindo!**********");
         printf("\nMenu:\n1 - Adicionar Jogador\n2 - Listar Jogadores\n3 - Remover Jogador\n4 - Comecar Jogo\n0 - Sair\nEscolha uma opcao: ");
@@ -341,7 +343,6 @@ int main()
                 removerJogador();
                 break;
             case 4:
-                sqlite3_close(db);
                 printf("A começar o jogo...\n");
                 break;
             case 0:
@@ -352,28 +353,32 @@ int main()
         }
     } while (opcao != 4 && opcao != 0);
 
-
+    // Verificar e carregar informações do primeiro jogador
     printf("Indique o nome do primeiro jogador: ");
-    scanf("%s", &player[0].nome);
+    scanf("%s", player[0].nome);
+    if (verificarCarregarJogador(&player[0])) {
+        printf("Jogador 1 carregado: ID=%d, Nome=%s, JogosJogados=%d, Vitorias=%d\n", player[0].id, player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
+    } else {
+        printf("Jogador 1 não encontrado.\nA encerrar o jogo...\n"); // Só joga se tiver previamente registado
+    }
 
-    //Verificar pela base de dados se o jogador 1 já existe
-    //Se existir, carregar a informação dele para a struct do jogador 1
-    //--------------------------------------------------
-
+   // Verificar e carregar informações do segundo jogador
     printf("Indique o nome do segundo jogador: ");
-    scanf("%s", &player[1].nome);
+    scanf("%s", player[1].nome);
+    if (verificarCarregarJogador(&player[1])) {
+        printf("Jogador 2 carregado: ID=%d, Nome=%s, JogosJogados=%d, Vitorias=%d\n", player[1].id, player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
+    } else {
+        printf("Jogador 2 não encontrado\nA encerrar o jogo...\n");
+    }
 
-    //Verificar pela base de dados se o jogador 2 já existe
-    //Se existir, carregar a informação dele para a struct do jogador 2
-    //--------------------------------------------------
-
+    sqlite3_close(db);
 
     printf("Indique a sequencia vencedora: ");
     scanf("%d", &WinSeq);
 
     Lines = WinSeq;
     
-    Columns = Columns * 2;
+    Columns = Medida + (WinSeq * 2);
 
     // Montagem e demonstração do tabuleiro
     BuildBoard(Lines, Columns, board);
@@ -438,11 +443,12 @@ int main()
 
                 PlayerRole = !PlayerRole;
 
+                break;
             case 2:
-                    printf("\nDETALHES DO JOGO: \n");
-                    printf("\nJOGADOR %s: %d vitorias \n", player[0].nome, CntVictPlayer1);
-                    printf("JOGADOR %s: %d vitorias \n", player[1].nome, CntVictPlayer2);
-                return 0;
+                printf("\nDETALHES DO JOGO: \n");
+                printf("\nJOGADOR %s: %d vitorias \n", player[0].nome, CntVictPlayer1);
+                printf("JOGADOR %s: %d vitorias \n", player[1].nome, CntVictPlayer2);
+                break;
             case 3:
                 return 0;
         }
