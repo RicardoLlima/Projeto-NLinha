@@ -11,9 +11,7 @@
 // O sentido da jogada também tem de ser E - Esquerda ou D - Direita
 // Adicionar jogadores e remover jogadores enquanto jogamos
 // Tamanho da grelha personalizavel (?)
-// Detalhes do jogo - Tamanho da grelha, jogadores por ordem alfabética, e tipo e quantidade de peças especiais disponíveis para cada jogador.
-// Desistir (D) Um jogador pode desistir do jogo em curso do qual faz parte, pelo que o outro jogador regista uma vitória. 
-// Ambos registam mais um jogo jogado. Caso os dois jogadores desistam, ambos somam um jogo jogado, sem vitória atribuída.
+// Detalhes do jogo - Tamanho da grelha e tipo e quantidade de peças especiais disponíveis para cada jogador.
 
 typedef struct {
     int id;
@@ -193,6 +191,13 @@ void desistirJogador(const char *player1, const char *player2) {
     }
 
     printf("Dados atualizados com sucesso.\n");
+}
+
+// Função de comparação para ordenar jogadores por nome
+int compararJogadores(const void *a, const void *b) {
+    Jogador *jogadorA = (Jogador *)a;
+    Jogador *jogadorB = (Jogador *)b;
+    return strcmp(jogadorA->nome, jogadorB->nome);
 }
 
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
@@ -518,6 +523,7 @@ int main()
 
                 break;
             case 3:
+                qsort(player, 2, sizeof(Jogador), compararJogadores);
                 printf("\nDETALHES DO JOGO: \n");
                 printf("\nJOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
                 printf("JOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
