@@ -360,6 +360,7 @@ int main()
         printf("Jogador 1 carregado: ID=%d, Nome=%s, JogosJogados=%d, Vitorias=%d\n", player[0].id, player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
     } else {
         printf("Jogador 1 não encontrado.\nA encerrar o jogo...\n"); // Só joga se tiver previamente registado
+        return 0;
     }
 
    // Verificar e carregar informações do segundo jogador
@@ -369,6 +370,7 @@ int main()
         printf("Jogador 2 carregado: ID=%d, Nome=%s, JogosJogados=%d, Vitorias=%d\n", player[1].id, player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
     } else {
         printf("Jogador 2 não encontrado\nA encerrar o jogo...\n");
+        return 0;
     }
 
     sqlite3_close(db);
