@@ -136,6 +136,34 @@ int verificarCarregarJogador(Jogador *jogador) {
     }
 }
 
+// Função para atualizar as vitórias do jogador na base de dados
+void atualizarVitoriasJogador(const char *playerName) {
+    char sql[256];
+    snprintf(sql, sizeof(sql), "UPDATE JOGADORES SET VITORIAS = VITORIAS + 1 WHERE NOME = '%s';", playerName);
+
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL ao atualizar vitórias: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else {
+        printf("Vitórias do jogador %s atualizadas com sucesso.\n", playerName);
+    }
+}
+
+// Função para atualizar os jogos realizados do jogador na base de dados
+void atualizarJogosRealizados(const char *playerName) {
+    char sql[256];
+    snprintf(sql, sizeof(sql), "UPDATE JOGADORES SET JOGOSJOGADOS = JOGOSJOGADOS + 1 WHERE NOME = '%s';", playerName);
+
+    rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Erro SQL ao atualizar jogos realizados: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    } else {
+        printf("Jogos realizados do jogador %s atualizados com sucesso.\n", playerName);
+    }
+}
+
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
@@ -429,16 +457,25 @@ int main()
                 {
                     if (PlayerRole)
                     {
-                        printf("\n\nVITORIA DO JOGADOR %s:\n", player[0].nome);
+                        printf("\n\nVitória do jogador: %s\n\n", player[0].nome);
                         CntVictPlayer1++;
-                        //Dar update no campo das vitorias do jogador na BD
+                        abrirBaseDeDados();
+                        atualizarVitoriasJogador(player[0].nome);
+                        sqlite3_close(db);
                     }
                     else
                     {
-                        printf("\n\nVITORIA DO JOGADOR %s:\n", player[1].nome);
+                        printf("\n\nVitória do jogador: %s\n\n", player[1].nome);
                         CntVictPlayer2++;
-                        //Dar update no campo das vitorias do jogador na BD
+                        abrirBaseDeDados();
+                        atualizarVitoriasJogador(player[1].nome);
+                        sqlite3_close(db);
                     }
+
+                    abrirBaseDeDados();
+                    atualizarJogosRealizados(player[0].nome);
+                    atualizarJogosRealizados(player[1].nome);
+                    sqlite3_close(db);
 
                     return 0;
                 }
