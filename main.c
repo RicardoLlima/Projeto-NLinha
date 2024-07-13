@@ -380,7 +380,7 @@ int main()
 
     Lines = WinSeq;
     
-    Columns = Medida + (WinSeq * 2);
+    Columns = Medida * 2;
 
     // Montagem e demonstração do tabuleiro
     BuildBoard(Lines, Columns, board);
@@ -448,8 +448,8 @@ int main()
                 break;
             case 2:
                 printf("\nDETALHES DO JOGO: \n");
-                printf("\nJOGADOR %s: %d vitorias \n", player[0].nome, CntVictPlayer1);
-                printf("JOGADOR %s: %d vitorias \n", player[1].nome, CntVictPlayer2);
+                printf("\nJOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
+                printf("JOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
                 break;
             case 3:
                 return 0;
