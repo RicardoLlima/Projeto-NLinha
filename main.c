@@ -403,7 +403,7 @@ int main()
 
     sqlite3_close(db);
 
-    printf("Indique a sequencia vencedora: ");
+    printf("Indique a sequência vencedora: ");
     scanf("%d", &WinSeq);
 
     Lines = WinSeq;
@@ -442,9 +442,9 @@ int main()
                     piece = 'O';
                 }
 
-                printf("\nQuantidade de pecas a jogar: ");
+                printf("\nQuantidade de peças a jogar: ");
                 scanf("%d", &PcQntty);
-                printf("Posicao Inicial: ");
+                printf("Posição Inicial: ");
                 scanf("%d", &StrtIdx);
                 printf("Sentido da jogada: ");
                 scanf("%d", &Drctn);
