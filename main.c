@@ -7,6 +7,14 @@
 
 #define Medida 14
 
+// Falta a implementação das peças especiais, o default para pôr peça é 1. Temos de criar uma função para receber a quantidade de peças especiais e o quanto valem.
+// O sentido da jogada também tem de ser E - Esquerda ou D - Direita
+// Adicionar jogadores e remover jogadores enquanto jogamos
+// Tamanho da grelha personalizavel (?)
+// Detalhes do jogo - Tamanho da grelha, jogadores por ordem alfabética, e tipo e quantidade de peças especiais disponíveis para cada jogador.
+// Desistir (D) Um jogador pode desistir do jogo em curso do qual faz parte, pelo que o outro jogador regista uma vitória. 
+// Ambos registam mais um jogo jogado. Caso os dois jogadores desistam, ambos somam um jogo jogado, sem vitória atribuída.
+
 typedef struct {
     int id;
     char nome[50];
@@ -162,6 +170,29 @@ void atualizarJogosRealizados(const char *playerName) {
     } else {
         printf("Jogos realizados do jogador %s atualizados com sucesso.\n", playerName);
     }
+}
+
+// Função para desistências
+void desistirJogador(const char *player1, const char *player2) {
+    char resposta;
+    printf("%s quer desistir.\n", player1);
+    printf("%s, também quer desistir? (s/n): ", player2);
+    scanf(" %c", &resposta);
+
+    // Ambos jogadores desistiram
+    if (resposta == 's' || resposta == 'S') {
+        printf("Ambos jogadores desistiram.\n");
+        atualizarJogosRealizados(player1);
+        atualizarJogosRealizados(player2);
+    } else {
+        // Apenas o jogador 1 desistiu
+        printf("%s não desistiu.\n", player2);
+        atualizarJogosRealizados(player1);
+        atualizarJogosRealizados(player2);
+        atualizarVitoriasJogador(player2);
+    }
+
+    printf("Dados atualizados com sucesso.\n");
 }
 
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
@@ -418,11 +449,14 @@ int main()
     do
     {
         int opcao_jogo;
-        printf("\nJogo:\n1 - Colocar Peça\n2 - Detalhes do Jogo\n3 - Desistir\n");
+        printf("\nJogo:\n1 - Visualizar tabuleiro\n2 - Colocar Peça\n3 - Detalhes do Jogo\n4 - Desistir\n");
         scanf("%d", &opcao_jogo);
 
         switch(opcao_jogo){
             case 1:
+            ShowBoard(Lines, Columns, board);
+            break;
+            case 2:
                 // Colocação das peças
                 int PcQntty;
                 int StrtIdx;
@@ -483,12 +517,24 @@ int main()
                 PlayerRole = !PlayerRole;
 
                 break;
-            case 2:
+            case 3:
                 printf("\nDETALHES DO JOGO: \n");
                 printf("\nJOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
                 printf("JOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
                 break;
-            case 3:
+            case 4:
+                if (PlayerRole)
+                {
+                    abrirBaseDeDados();
+                    desistirJogador(player[0].nome, player[1].nome);
+                    sqlite3_close(db);
+                }
+                else
+                {
+                    abrirBaseDeDados();
+                    desistirJogador(player[1].nome, player[0].nome);
+                    sqlite3_close(db);
+                }
                 return 0;
         }
     } while (1);
