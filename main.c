@@ -9,7 +9,6 @@
 
 // Falta a implementação das peças especiais, o default para pôr peça é 1. Temos de criar uma função para receber a quantidade de peças especiais e o quanto valem.
 // O sentido da jogada também tem de ser E - Esquerda ou D - Direita
-// Adicionar jogadores e remover jogadores enquanto jogamos
 // Tamanho da grelha personalizavel (?)
 // Detalhes do jogo - Tamanho da grelha e tipo e quantidade de peças especiais disponíveis para cada jogador.
 
@@ -20,10 +19,11 @@ typedef struct {
     int Vitorias;
 } Jogador;
 
+int jogadorAtualID;
+
 sqlite3 *db;
 char *zErrMsg = 0;
 int rc;
-
 
 //FUNÇÕES DE MANIPULAÇÃO DO UTILIZADOR ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ void abrirBaseDeDados() {
         fprintf(stderr, "Não foi possível abrir a base de dados: %s\n", sqlite3_errmsg(db));
         exit(0);
     } else {
-        fprintf(stdout, "Base de dados aberta com sucesso.\n");
+        fprintf(stdout, "-------------------------\n");
     }
 }
 
@@ -71,9 +71,6 @@ int adicionarJogador() {
     printf("Introduza o nome do novo jogador: ");
     scanf(" %s", c.nome);  
     char sql[200];
-
-
-
     sprintf(sql, "INSERT INTO JOGADORES (NOME) VALUES ('%s');", c.nome);
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if (rc != SQLITE_OK) {
@@ -90,7 +87,11 @@ int adicionarJogador() {
 int removerJogador() {
     Jogador c;
     printf("Introduza o ID do jogador: ");
-    scanf("%d", &c.id);  
+    scanf("%d", &c.id);
+    if (c.id == jogadorAtualID) {
+        printf("Erro: Não é possível remover o jogador que está a jogar atualmente.\n");
+        return -1;
+    }  
     char sql[200]; 
     sprintf(sql, "DELETE FROM JOGADORES WHERE ID = %d;", c.id);
         rc = sqlite3_exec(db, sql, NULL, 0, &zErrMsg);
@@ -404,7 +405,7 @@ int main()
                 listarJogador();
                 break;
             case 3:
-                removerJogador();
+                removerJogador(-1);
                 break;
             case 4:
                 printf("A começar o jogo...\n");
@@ -450,11 +451,16 @@ int main()
     BuildBoard(Lines, Columns, board);
     ShowBoard(Lines, Columns, board);
 
+    // Array para conter os IDs dos jogadores
+    int jogadorAtualId[2];
+    jogadorAtualId[0] = player[0].id;
+    jogadorAtualId[1] = player[1].id;
+
     //Execução do jogo
     do
     {
         int opcao_jogo;
-        printf("\nJogo:\n1 - Visualizar tabuleiro\n2 - Colocar Peça\n3 - Detalhes do Jogo\n4 - Desistir\n");
+        printf("\nJogo:\n1 - Visualizar tabuleiro\n2 - Colocar Peça\n3 - Detalhes do Jogo\n4 - Adicionar Jogador\n5 - Remover Jogador\n6 - Desistir\n");
         scanf("%d", &opcao_jogo);
 
         switch(opcao_jogo){
@@ -529,6 +535,23 @@ int main()
                 printf("JOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
                 break;
             case 4:
+                abrirBaseDeDados();
+                adicionarJogador();
+                sqlite3_close(db);
+                break;
+            case 5:
+                  printf("Indique o ID do jogador a ser removido: ");
+                int jogadorId;
+                scanf("%d", &jogadorId);
+                if (jogadorId == player[0].id || jogadorId == player[1].id) {
+                    printf("Erro: Não é possível remover um jogador que está atualmente no jogo.\n");
+                } else {
+                    abrirBaseDeDados();
+                    removerJogador(jogadorId);
+                    sqlite3_close(db);
+                }
+                break;
+            case 6:
                 if (PlayerRole)
                 {
                     abrirBaseDeDados();
