@@ -236,48 +236,22 @@ void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
     }
 }
 
-void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[Medida][Medida], int LinNum)   
-{
-    // StartIndex é o numero da coluna
-    // PieceType é o caracter a jogar
-    // PieceQntty é a quantidade de peças a jogar
-    // Direction é a direção que vão ser jogadas as peças, esquerda ou direita          // 1 - Direita   0 - Esquerda
-    // LinNum é o numero de linhas do tabuleiro
+void InsertPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Medida][Medida], int LinNum) {
+    int idxLin, idxColumn;
+    int auxStartIndex = (StartIndex * 2) - 1;
 
-    int aux;
-    int idxLin;
-    int idxColumn;
-    int auxStartIndex = (StartIndex * 2) - 1; // Controla o numero da coluna que está a ser rodado
-    //(No caso de direita vai andar para a frente, caso de esquerda para trás)
-
-    // Controlar a passagem das colunas se for mais que 1 peça
-
-    for (idxColumn = 0; idxColumn < PieceQntty; idxColumn++)
-    {
-        // Verificar as linhas da coluna StartIndex de baixo para cima,
-        // para perceber quais as linhas nessa coluna já estão ou não ocupadas
-
-        for (idxLin = LinNum; idxLin >= 0; idxLin--)
-        {
-
-            if (Brd[idxLin][auxStartIndex] == '_')
-            {
+    for (idxColumn = 0; idxColumn < PieceQntty; idxColumn++) {
+        for (idxLin = LinNum; idxLin >= 0; idxLin--) {
+            if (Brd[idxLin][auxStartIndex] == '_') {
                 Brd[idxLin][auxStartIndex] = PieceType;
                 break;
             }
         }
 
-        if (Direction)
-        {
-            // Jogada para a direita
-            auxStartIndex = auxStartIndex + 2;
-        }
-        else
-        {
-            // Jogada para a esquerda
-
-            if (auxStartIndex != 1)
-                auxStartIndex = auxStartIndex - 2;
+        if (Direction == 'D' || Direction == 'd') {
+            auxStartIndex += 2;
+        } else if (Direction == 'E' || Direction == 'e') {
+            auxStartIndex -= 2;
         }
     }
 }
@@ -471,7 +445,7 @@ int main()
                 // Colocação das peças
                 int PcQntty;
                 int StrtIdx;
-                int Drctn; // 1 - Direita   0 - Esquerda
+                char Drctn; // 'E' para Esquerda, 'D' para Direita
                 char piece;
 
                 // Verificação de qual jogador vai jogar
@@ -487,12 +461,12 @@ int main()
                     piece = 'O';
                 }
 
-                printf("\nQuantidade de peças a jogar: ");
-                scanf("%d", &PcQntty);
-                printf("Posição Inicial: ");
-                scanf("%d", &StrtIdx);
-                printf("Sentido da jogada: ");
-                scanf("%d", &Drctn);
+                    printf("\nQuantidade de peças a jogar: ");
+                    scanf("%d", &PcQntty);
+                    printf("Posição Inicial: ");
+                    scanf("%d", &StrtIdx);
+                    printf("Sentido da jogada (E para Esquerda, D para Direita): ");
+                    scanf(" %c", &Drctn);
 
                 InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
                 ShowBoard(Lines, Columns, board);
