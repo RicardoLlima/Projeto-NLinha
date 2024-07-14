@@ -11,13 +11,22 @@
 // O sentido da jogada também tem de ser E - Esquerda ou D - Direita
 // Tamanho da grelha personalizavel (?)
 // Detalhes do jogo - Tamanho da grelha e tipo e quantidade de peças especiais disponíveis para cada jogador.
+// Quando se põe na posição 0 inserem duas peças
 
 typedef struct {
     int id;
     char nome[50];
     int JogosRealizados;
     int Vitorias;
+    int pecasEspeciais;
 } Jogador;
+
+typedef struct {
+    int tamanho;
+    int quantidade;
+} PecaEspecial;
+
+PecaEspecial pecaEspecial;
 
 int jogadorAtualID;
 
@@ -236,7 +245,19 @@ void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
     }
 }
 
-void InsertPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Medida][Medida], int LinNum) {
+void InsertPiece(char PieceType, int StartIndex, char Brd[Medida][Medida], int LinNum) {
+    int idxLin;
+    int auxStartIndex = (StartIndex * 2) - 1;
+
+    for (idxLin = LinNum; idxLin >= 0; idxLin--) {
+        if (Brd[idxLin][auxStartIndex] == '_') {
+            Brd[idxLin][auxStartIndex] = PieceType;
+            break;
+        }
+    }
+}
+
+void InsertSpecialPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Medida][Medida], int LinNum) {
     int idxLin, idxColumn;
     int auxStartIndex = (StartIndex * 2) - 1;
 
@@ -417,6 +438,11 @@ int main()
     printf("Indique a sequência vencedora: ");
     scanf("%d", &WinSeq);
 
+    printf("Defina o tamanho da peça especial (quantas casas ocupa): ");
+    scanf("%d", &pecaEspecial.tamanho);
+    printf("Quantas peças especiais cada jogador pode ter: ");
+    scanf("%d", &pecaEspecial.quantidade);
+
     Lines = WinSeq;
     
     Columns = Medida * 2;
@@ -430,11 +456,15 @@ int main()
     jogadorAtualId[0] = player[0].id;
     jogadorAtualId[1] = player[1].id;
 
+    // Definir o número de peças especiais para cada jogador
+    player[0].pecasEspeciais = pecaEspecial.quantidade;
+    player[1].pecasEspeciais = pecaEspecial.quantidade;
+
     //Execução do jogo
     do
     {
         int opcao_jogo;
-        printf("\nJogo:\n1 - Visualizar tabuleiro\n2 - Colocar Peça\n3 - Detalhes do Jogo\n4 - Adicionar Jogador\n5 - Remover Jogador\n6 - Desistir\n");
+        printf("\nJogo:\n1 - Visualizar tabuleiro\n2 - Colocar Peça\n3 - Colocar Peça Especial\n4 - Detalhes do Jogo\n5 - Adicionar Jogador\n6 - Remover Jogador\n7 - Desistir\n");
         scanf("%d", &opcao_jogo);
 
         switch(opcao_jogo){
@@ -442,10 +472,8 @@ int main()
             ShowBoard(Lines, Columns, board);
             break;
             case 2:
-                // Colocação das peças
-                int PcQntty;
+                // Colocação das peças normais
                 int StrtIdx;
-                char Drctn; // 'E' para Esquerda, 'D' para Direita
                 char piece;
 
                 // Verificação de qual jogador vai jogar
@@ -461,15 +489,11 @@ int main()
                     piece = 'O';
                 }
 
-                    printf("\nQuantidade de peças a jogar: ");
-                    scanf("%d", &PcQntty);
                     printf("Posição Inicial: ");
                     scanf("%d", &StrtIdx);
-                    printf("Sentido da jogada (E para Esquerda, D para Direita): ");
-                    scanf(" %c", &Drctn);
 
-                InsertPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
-                ShowBoard(Lines, Columns, board);
+            InsertPiece(piece, StrtIdx, board, Lines);
+            ShowBoard(Lines, Columns, board);
 
                 // Função de verificação de vitória
                 if (VictoryVerification(Lines, Columns / 2, board, piece, WinSeq))
@@ -503,17 +527,87 @@ int main()
 
                 break;
             case 3:
+             // Colocação das peças especiais 
+            if ((PlayerRole && player[0].pecasEspeciais <= pecaEspecial.quantidade && player[0].pecasEspeciais > 0) ||
+                (!PlayerRole && player[1].pecasEspeciais <= pecaEspecial.quantidade && player[1].pecasEspeciais > 0)) {
+                int PcQntty = pecaEspecial.tamanho;
+                char Drctn;
+                char piece;
+
+                // Verificação de qual jogador vai jogar
+                if (PlayerRole) {
+                    printf("\n\nJOGADOR %s:\n", player[0].nome);
+                } else {
+                    printf("\n\nJOGADOR %s:\n", player[1].nome);
+                }
+
+                printf("Posição Inicial: ");
+                scanf("%d", &StrtIdx);
+                printf("Sentido da jogada (E para Esquerda, D para Direita): ");
+                scanf(" %c", &Drctn);
+
+                if (PlayerRole)
+                {
+                    printf("\n\nJOGADOR %s:\n", player[0].nome);
+                    piece = 'X';
+                }
+                else
+                {
+                    printf("\n\nJOGADOR %s:\n", player[1].nome);
+                    piece = 'O';
+                }
+
+                InsertSpecialPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
+                ShowBoard(Lines, Columns, board);
+
+                // Atualizar a contagem de peças especiais usadas
+                if (PlayerRole) {
+                    player[0].pecasEspeciais--;
+                } else {
+                    player[1].pecasEspeciais--;
+                }
+
+                // Verificação de vitória
+                if (VictoryVerification(Lines, Columns / 2, board, piece, WinSeq)) {
+                    if (PlayerRole) {
+                        printf("\n\nVitória do jogador: %s\n\n", player[0].nome);
+                        CntVictPlayer1++;
+                        abrirBaseDeDados();
+                        atualizarVitoriasJogador(player[0].nome);
+                        sqlite3_close(db);
+                    } else {
+                        printf("\n\nVitória do jogador: %s\n\n", player[1].nome);
+                        CntVictPlayer2++;
+                        abrirBaseDeDados();
+                        atualizarVitoriasJogador(player[1].nome);
+                        sqlite3_close(db);
+                    }
+
+                    abrirBaseDeDados();
+                    atualizarJogosRealizados(player[0].nome);
+                    atualizarJogosRealizados(player[1].nome);
+                    sqlite3_close(db);
+
+                    return 0;
+                }
+
+                PlayerRole = !PlayerRole;
+            } else {
+                printf("Número máximo de peças especiais já utilizado.\n");
+            }
+            break;
+            case 4:
                 qsort(player, 2, sizeof(Jogador), compararJogadores);
                 printf("\nDETALHES DO JOGO: \n");
                 printf("\nJOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[0].nome, player[0].JogosRealizados, player[0].Vitorias);
                 printf("JOGADOR %s:\n%d jogos realizados \n%d vitórias \n", player[1].nome, player[1].JogosRealizados, player[1].Vitorias);
                 break;
-            case 4:
+            case 5:
                 abrirBaseDeDados();
                 adicionarJogador();
                 sqlite3_close(db);
                 break;
-            case 5:
+            case 6:
                   printf("Indique o ID do jogador a ser removido: ");
                 int jogadorId;
                 scanf("%d", &jogadorId);
@@ -525,7 +619,7 @@ int main()
                     sqlite3_close(db);
                 }
                 break;
-            case 6:
+            case 7:
                 if (PlayerRole)
                 {
                     abrirBaseDeDados();
