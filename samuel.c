@@ -90,11 +90,12 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
 
 int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
-    int idxCol, idxLin, aux, idxDigLin, idxDigCol;
-    int ColSeqCount = 1, LinSeqCount = 1;
+    int idxCol, idxLin, idxDigLin = 0, idxDigCol = 0;
+    int AuxCol = 0, AuxLin = 0, auxCol2 ,AuxLin2, auxCol3 = 0;
+    int ColSeqCount = 0, LinSeqCount = 0;
 
     //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
-    for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
+    /*for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
     {
         LinSeqCount = 0;
 
@@ -139,39 +140,30 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
 
 
     //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
-
-    //DIREITA PARA ESQUERDA
-    for(idxDigLin = 0, idxDigCol = VictSeq; idxDigLin < VictSeq; idxDigLin++, idxDigCol--) //Linhas
+    */
+   //ESQUERDA PARA DIREITA
+    for (AuxLin = 1; AuxLin <= Lin; AuxLin++) // Linhas
     {
-        aux = (idxDigCol * 2) - 1; //Colunas
-
-        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
+        while (auxCol3 < Col)
         {
-            LinSeqCount++;
-    
-            if(LinSeqCount == VictSeq)
-                return 1;
+            for (auxCol2 = 0, AuxLin2 = AuxLin; auxCol2 < VictSeq; auxCol2++, AuxLin2--)
+            {
+                AuxCol = ((auxCol2 + 1) * 2) - 1; // Colunas
+
+                if (Brd[AuxLin2][AuxCol] == CurrentPlayerChar)
+                {
+                    LinSeqCount++;
+
+                    if (LinSeqCount == VictSeq)
+                        return 1;
+                }
+                else
+                    LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+            }
+
+            auxCol3 = auxCol2;
         }
-        else
-            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
     }
-
-    //ESQUERDA PARA DIREITA
-    for(idxDigLin = 0; idxDigLin < VictSeq; idxDigLin++) //Linhas
-    {
-        aux = ((idxDigLin + 1) * 2) - 1; //Colunas
-
-        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
-        {
-            LinSeqCount++;
-    
-            if(LinSeqCount == VictSeq)
-                return 1;
-        }
-        else
-            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
-    }
-
 
     return 0;
 }
