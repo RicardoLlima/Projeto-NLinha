@@ -5,8 +5,6 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 
-#define Medida 14
-
 // Falta a implementação das peças especiais, o default para pôr peça é 1. Temos de criar uma função para receber a quantidade de peças especiais e o quanto valem.
 // O sentido da jogada também tem de ser E - Esquerda ou D - Direita
 // Tamanho da grelha personalizavel (?)
@@ -33,6 +31,9 @@ int jogadorAtualID;
 sqlite3 *db;
 char *zErrMsg = 0;
 int rc;
+
+int Lines_Pre;
+int Columns_Pre;
 
 //FUNÇÕES DE MANIPULAÇÃO DO UTILIZADOR ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ int compararJogadores(const void *a, const void *b) {
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-void BuildBoard(int Lin, int Col, char Brd[Medida][Medida])
+void BuildBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
 {
     int idxCol, idxLin, aux;
 
@@ -231,7 +232,7 @@ void BuildBoard(int Lin, int Col, char Brd[Medida][Medida])
     }
 }
 
-void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
+void ShowBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
 {
     int idxCol, idxLin;
 
@@ -245,7 +246,7 @@ void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
     }
 }
 
-void InsertPiece(char PieceType, int StartIndex, char Brd[Medida][Medida], int LinNum) {
+void InsertPiece(char PieceType, int StartIndex, char Brd[Lines_Pre][Columns_Pre], int LinNum) {
     int idxLin;
     int auxStartIndex = (StartIndex * 2) - 1;
 
@@ -257,7 +258,7 @@ void InsertPiece(char PieceType, int StartIndex, char Brd[Medida][Medida], int L
     }
 }
 
-void InsertSpecialPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Medida][Medida], int LinNum) {
+void InsertSpecialPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Lines_Pre][Columns_Pre], int LinNum) {
     int idxLin, idxColumn;
     int auxStartIndex = (StartIndex * 2) - 1;
 
@@ -277,7 +278,7 @@ void InsertSpecialPiece(char PieceType, int PieceQntty, int StartIndex, char Dir
     }
 }
 
-int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
+int VictoryVerification(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
     int idxCol, idxLin, aux, idxDigLin, idxDigCol;
     int ColSeqCount = 1, LinSeqCount = 1;
@@ -371,12 +372,13 @@ int main()
     abrirBaseDeDados();
     criarTabelaClientes();
 
-    int opcao;
-    char board[Medida][Medida];
-
-    int WinSeq;
     int Lines;
     int Columns;
+
+    int opcao;
+    char board[Lines][Columns];
+
+    int WinSeq;
 
     Jogador player[2];
     int idxPl;
@@ -437,15 +439,16 @@ int main()
 
     printf("Indique a sequência vencedora: ");
     scanf("%d", &WinSeq);
-
+    printf("Indique o número de linhas do tabuleiro: ");
+    scanf("%d", &Lines);
+    printf("Introduza o número de colunas do tabuleiro: ");
+    scanf("%d", &Columns);
     printf("Defina o tamanho da peça especial (quantas casas ocupa): ");
     scanf("%d", &pecaEspecial.tamanho);
     printf("Quantas peças especiais cada jogador pode ter: ");
     scanf("%d", &pecaEspecial.quantidade);
 
-    Lines = WinSeq;
-    
-    Columns = Medida * 2;
+    Columns = Columns * 2;
 
     // Montagem e demonstração do tabuleiro
     BuildBoard(Lines, Columns, board);
