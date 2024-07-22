@@ -60,7 +60,7 @@ void abrirBaseDeDados() {
 }
 
 // Função para criar a tabela de jogadores, se necessário
-void criarTabelaClientes() {
+void criarTabelaJogadores() {
     const char *sql = "CREATE TABLE IF NOT EXISTS JOGADORES("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                       "NOME TEXT NOT NULL UNIQUE,"
@@ -370,7 +370,7 @@ int main()
 {
     setlocale(LC_ALL, "pt_PT.UTF-8");
     abrirBaseDeDados();
-    criarTabelaClientes();
+    criarTabelaJogadores();
 
     int Lines;
     int Columns;
