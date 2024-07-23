@@ -5,11 +5,7 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 
-// Falta a implementação das peças especiais, o default para pôr peça é 1. Temos de criar uma função para receber a quantidade de peças especiais e o quanto valem.
-// O sentido da jogada também tem de ser E - Esquerda ou D - Direita
-// Tamanho da grelha personalizavel (?)
-// Detalhes do jogo - Tamanho da grelha e tipo e quantidade de peças especiais disponíveis para cada jogador.
-// Quando se põe na posição 0 inserem duas peças
+// INSERIR PEÇA COM FALHAS
 
 typedef struct {
     int id;
@@ -383,10 +379,6 @@ int main()
     Jogador player[2];
     int idxPl;
 
-    // Variaveis de controlo do numero de vitorias do jogo a decorrer
-    int CntVictPlayer1 = 0;
-    int CntVictPlayer2 = 0;
-
     bool PlayerRole = true; //Identificar que jogador está a jogar no momento
 
     do {
@@ -504,7 +496,6 @@ int main()
                     if (PlayerRole)
                     {
                         printf("\n\nVitória do jogador: %s\n\n", player[0].nome);
-                        CntVictPlayer1++;
                         abrirBaseDeDados();
                         atualizarVitoriasJogador(player[0].nome);
                         sqlite3_close(db);
@@ -512,7 +503,6 @@ int main()
                     else
                     {
                         printf("\n\nVitória do jogador: %s\n\n", player[1].nome);
-                        CntVictPlayer2++;
                         abrirBaseDeDados();
                         atualizarVitoriasJogador(player[1].nome);
                         sqlite3_close(db);
@@ -574,13 +564,11 @@ int main()
                 if (VictoryVerification(Lines, Columns / 2, board, piece, WinSeq)) {
                     if (PlayerRole) {
                         printf("\n\nVitória do jogador: %s\n\n", player[0].nome);
-                        CntVictPlayer1++;
                         abrirBaseDeDados();
                         atualizarVitoriasJogador(player[0].nome);
                         sqlite3_close(db);
                     } else {
                         printf("\n\nVitória do jogador: %s\n\n", player[1].nome);
-                        CntVictPlayer2++;
                         abrirBaseDeDados();
                         atualizarVitoriasJogador(player[1].nome);
                         sqlite3_close(db);
