@@ -91,11 +91,11 @@ void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, 
 int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
     int idxCol, idxLin, idxDigLin = 0, idxDigCol = 0;
-    int AuxCol = 0, AuxLin = 0, auxCol2 ,AuxLin2, auxCol3 = 0;
+    int AuxCol = 0, AuxLin = 0, auxCol2 ,AuxLin2, auxCol3 = 0, aux;
     int ColSeqCount = 0, LinSeqCount = 0;
 
     //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
-    /*for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
+    for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
     {
         LinSeqCount = 0;
 
@@ -140,9 +140,9 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
 
 
     //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
-    */
+    
    //ESQUERDA PARA DIREITA
-    for (AuxLin = 1; AuxLin <= Lin; AuxLin++) // Linhas
+    /*for (AuxLin = 1; AuxLin <= Lin; AuxLin++) // Linhas
     {
         while (auxCol3 < Col)
         {
@@ -163,7 +163,7 @@ int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char Current
 
             auxCol3 = auxCol2;
         }
-    }
+    }*/
 
     return 0;
 }
