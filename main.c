@@ -5,8 +5,6 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 
-// INSERIR PEÇA COM FALHAS
-
 typedef struct {
     int id;
     char nome[50];
@@ -15,12 +13,7 @@ typedef struct {
     int pecasEspeciais;
 } Jogador;
 
-typedef struct {
-    int tamanho;
-    int quantidade;
-} PecaEspecial;
-
-PecaEspecial pecaEspecial;
+#define Medida 20
 
 int jogadorAtualID;
 
@@ -210,7 +203,7 @@ int compararJogadores(const void *a, const void *b) {
 //FUNÇÕES DE MANIPULAÇÃO DO TABULEIRO ---------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-void BuildBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
+void BuildBoard(int Lin, int Col, char Brd[Medida][Medida])
 {
     int idxCol, idxLin, aux;
 
@@ -228,7 +221,7 @@ void BuildBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
     }
 }
 
-void ShowBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
+void ShowBoard(int Lin, int Col, char Brd[Medida][Medida])
 {
     int idxCol, idxLin;
 
@@ -242,122 +235,170 @@ void ShowBoard(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre])
     }
 }
 
-void InsertPiece(char PieceType, int StartIndex, char Brd[Lines_Pre][Columns_Pre], int LinNum) {
+void InsertPiece(char PieceType, int PieceQntty, int StartIndex, int Direction, char Brd[Medida][Medida], int LinNum)   
+{
+    // StartIndex é o numero da coluna
+    // PieceType é o caracter a jogar
+    // PieceQntty é a quantidade de peças a jogar
+    // Direction é a direção que vão ser jogadas as peças, esquerda ou direita          // 1 - Direita   0 - Esquerda
+    // LinNum é o numero de linhas do tabuleiro
+
+    int aux;
     int idxLin;
-    int auxStartIndex = (StartIndex * 2) - 1;
+    int idxColumn;
+    int auxStartIndex = (StartIndex * 2) - 1; // Controla o numero da coluna que está a ser rodado
+    //(No caso de direita vai andar para a frente, caso de esquerda para trás)
 
-    for (idxLin = LinNum; idxLin >= 0; idxLin--) {
-        if (Brd[idxLin][auxStartIndex] == '_') {
-            Brd[idxLin][auxStartIndex] = PieceType;
-            break;
-        }
-    }
-}
+    // Controlar a passagem das colunas se for mais que 1 peça
 
-void InsertSpecialPiece(char PieceType, int PieceQntty, int StartIndex, char Direction, char Brd[Lines_Pre][Columns_Pre], int LinNum) {
-    int idxLin, idxColumn;
-    int auxStartIndex = (StartIndex * 2) - 1;
+    for (idxColumn = 0; idxColumn < PieceQntty; idxColumn++)
+    {
+        // Verificar as linhas da coluna StartIndex de baixo para cima,
+        // para perceber quais as linhas nessa coluna já estão ou não ocupadas
 
-    for (idxColumn = 0; idxColumn < PieceQntty; idxColumn++) {
-        for (idxLin = LinNum; idxLin >= 0; idxLin--) {
-            if (Brd[idxLin][auxStartIndex] == '_') {
+        for (idxLin = LinNum; idxLin >= 0; idxLin--)
+        {
+
+            if (Brd[idxLin][auxStartIndex] == '_')
+            {
                 Brd[idxLin][auxStartIndex] = PieceType;
                 break;
             }
         }
 
-        if (Direction == 'D' || Direction == 'd') {
-            auxStartIndex += 2;
-        } else if (Direction == 'E' || Direction == 'e') {
-            auxStartIndex -= 2;
+        if (Direction)
+        {
+            // Jogada para a direita
+            auxStartIndex = auxStartIndex + 2;
+        }
+        else
+        {
+            // Jogada para a esquerda
+
+            if (auxStartIndex != 1)
+                auxStartIndex = auxStartIndex - 2;
         }
     }
 }
 
-int VictoryVerification(int Lin, int Col, char Brd[Lines_Pre][Columns_Pre], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
+int VictoryVerification(int Lin, int Col, char Brd[Medida][Medida], char CurrentPlayerChar, int VictSeq) //CurrentPlayerChar representa o objeto do jogador
 {
     int idxCol, idxLin, aux, idxDigLin, idxDigCol;
     int ColSeqCount = 1, LinSeqCount = 1;
+    int diagSeqCount = 0;
 
-    //VERIFICAÇÃO DE VITÓRIA DAS LINHAS
+    // VERIFICAÇÃO DE VITÓRIA DAS LINHAS
     for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
     {
         LinSeqCount = 0;
-
         for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
         {
             aux = (idxCol * 2) - 1;
-        
-            if(Brd[idxLin][aux] == CurrentPlayerChar)
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
             {
                 LinSeqCount++;
-
-                if(LinSeqCount == VictSeq)
+                if (LinSeqCount == VictSeq)
                     return 1;
             }
             else
-                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça a seguir não é igual
         }
     }
 
-
-    //VERIFICAÇÃO DE VITÓRIA DAS COLUNAS
+    // VERIFICAÇÃO DE VITÓRIA DAS COLUNAS
     for (idxCol = 1; idxCol <= Col; idxCol++) // Colunas
     {
         LinSeqCount = 0;
-
         aux = (idxCol * 2) - 1;
-
         for (idxLin = 0; idxLin < Lin; idxLin++) // Linhas
         {
-            if(Brd[idxLin][aux] == CurrentPlayerChar)
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
             {
                 LinSeqCount++;
-
-                if(LinSeqCount == VictSeq)
+                if (LinSeqCount == VictSeq)
                     return 1;
-                
             }
             else
-                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
+                LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça a seguir não é igual
         }
     }
 
+    // VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
 
-    //VERIFICAÇÃO DE VITÓRIAS DAS DIAGONAIS
-
-    //DIREITA PARA ESQUERDA
-    for(idxDigLin = 0, idxDigCol = VictSeq; idxDigLin < VictSeq; idxDigLin++, idxDigCol--) //Linhas
+    // Direita para Esquerda e Esquerda para Direita
+    // Diagonais ascendentes
+    for (int start = 0; start <= Col - VictSeq; start++)
     {
-        aux = (idxDigCol * 2) - 1; //Colunas
-
-        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
+        // Diagonal descendente do lado esquerdo (parte superior)
+        diagSeqCount = 0;
+        for (idxLin = 0, idxCol = start; idxLin < Lin && idxCol < Col; idxLin++, idxCol++)
         {
-            LinSeqCount++;
-    
-            if(LinSeqCount == VictSeq)
-                return 1;
+            aux = (idxCol * 2) - 1;
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
+            {
+                diagSeqCount++;
+                if (diagSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                diagSeqCount = 0;
         }
-        else
-            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
     }
 
-    //ESQUERDA PARA DIREITA
-    for(idxDigLin = 0; idxDigLin < VictSeq; idxDigLin++) //Linhas
+    for (int start = 1; start <= Lin - VictSeq; start++)
     {
-        aux = ((idxDigLin + 1) * 2) - 1; //Colunas
-
-        if(Brd[idxDigLin][aux] == CurrentPlayerChar)
+        // Diagonal descendente do lado direito (parte inferior)
+        diagSeqCount = 0;
+        for (idxLin = start, idxCol = 0; idxLin < Lin && idxCol < Col; idxLin++, idxCol++)
         {
-            LinSeqCount++;
-    
-            if(LinSeqCount == VictSeq)
-                return 1;
+            aux = (idxCol * 2) - 1;
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
+            {
+                diagSeqCount++;
+                if (diagSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                diagSeqCount = 0;
         }
-        else
-            LinSeqCount = 0; // A Contagem da sequencia volta a 1 porque a peça asseguir não é igual
     }
 
+    // Diagonais descendentes
+    for (int start = 0; start <= Col - VictSeq; start++)
+    {
+        // Diagonal ascendente do lado esquerdo (parte inferior)
+        diagSeqCount = 0;
+        for (idxLin = Lin - 1, idxCol = start; idxLin >= 0 && idxCol < Col; idxLin--, idxCol++)
+        {
+            aux = (idxCol * 2) - 1;
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
+            {
+                diagSeqCount++;
+                if (diagSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                diagSeqCount = 0;
+        }
+    }
+
+    for (int start = Lin - 2; start >= VictSeq - 1; start--)
+    {
+        // Diagonal ascendente do lado direito (parte superior)
+        diagSeqCount = 0;
+        for (idxLin = start, idxCol = 0; idxLin >= 0 && idxCol < Col; idxLin--, idxCol++)
+        {
+            aux = (idxCol * 2) - 1;
+            if (Brd[idxLin][aux] == CurrentPlayerChar)
+            {
+                diagSeqCount++;
+                if (diagSeqCount == VictSeq)
+                    return 1;
+            }
+            else
+                diagSeqCount = 0;
+        }
+    }
 
     return 0;
 }
@@ -375,6 +416,7 @@ int main()
     char board[Lines][Columns];
 
     int WinSeq;
+    int Piece_Qtt;
 
     Jogador player[2];
     int idxPl;
@@ -435,10 +477,8 @@ int main()
     scanf("%d", &Lines);
     printf("Introduza o número de colunas do tabuleiro: ");
     scanf("%d", &Columns);
-    printf("Defina o tamanho da peça especial (quantas casas ocupa): ");
-    scanf("%d", &pecaEspecial.tamanho);
-    printf("Quantas peças especiais cada jogador pode ter: ");
-    scanf("%d", &pecaEspecial.quantidade);
+    printf("Indique o valor da peça especial: ");
+    scanf("%d", &Piece_Qtt);
 
     Columns = Columns * 2;
 
@@ -450,10 +490,6 @@ int main()
     int jogadorAtualId[2];
     jogadorAtualId[0] = player[0].id;
     jogadorAtualId[1] = player[1].id;
-
-    // Definir o número de peças especiais para cada jogador
-    player[0].pecasEspeciais = pecaEspecial.quantidade;
-    player[1].pecasEspeciais = pecaEspecial.quantidade;
 
     //Execução do jogo
     do
@@ -487,7 +523,7 @@ int main()
                     printf("Posição Inicial: ");
                     scanf("%d", &StrtIdx);
 
-            InsertPiece(piece, StrtIdx, board, Lines);
+            InsertPiece(piece, 1, StrtIdx, 1, board, Lines);
             ShowBoard(Lines, Columns, board);
 
                 // Função de verificação de vitória
@@ -520,12 +556,7 @@ int main()
 
                 break;
             case 3:
-             // Colocação das peças especiais 
-            if ((PlayerRole && player[0].pecasEspeciais <= pecaEspecial.quantidade && player[0].pecasEspeciais > 0) ||
-                (!PlayerRole && player[1].pecasEspeciais <= pecaEspecial.quantidade && player[1].pecasEspeciais > 0)) {
-                int PcQntty = pecaEspecial.tamanho;
                 char Drctn;
-                char piece;
 
                 // Verificação de qual jogador vai jogar
                 if (PlayerRole) {
@@ -550,7 +581,7 @@ int main()
                     piece = 'O';
                 }
 
-                InsertSpecialPiece(piece, PcQntty, StrtIdx, Drctn, board, Lines);
+                InsertPiece(piece, Piece_Qtt, StrtIdx, Drctn, board, Lines);
                 ShowBoard(Lines, Columns, board);
 
                 // Atualizar a contagem de peças especiais usadas
@@ -583,9 +614,7 @@ int main()
                 }
 
                 PlayerRole = !PlayerRole;
-            } else {
-                printf("Número máximo de peças especiais já utilizado.\n");
-            }
+
             break;
             case 4:
                 qsort(player, 2, sizeof(Jogador), compararJogadores);
