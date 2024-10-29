@@ -2,7 +2,7 @@
 
 Este projeto implementa um jogo de tabuleiro em C, utilizando uma base de dados SQLite para gerir os jogadores. O jogo permite adicionar, listar e remover jogadores, e simula uma partida em que os jogadores podem inserir peças normais e especiais no tabuleiro. As vitórias e jogos realizados são registados na base de dados.
 
-## Sumário
+## Índice
 
 - [Funcionalidades](#funcionalidades)
 - [Pré-requisitos](#pré-requisitos)
@@ -17,7 +17,7 @@ Este projeto implementa um jogo de tabuleiro em C, utilizando uma base de dados 
 1. **Gerir Jogadores**:
    - Adicionar jogadores à base de dados.
    - Listar todos os jogadores.
-   - Remover jogadores existentes, exceto o jogador que estiver em jogo.
+   - Remover jogadores existentes, exceto os jogador que estiverem a jogar.
 
 2. **Jogo de Tabuleiro**:
    - Definir o tamanho do tabuleiro e a sequência de vitória.
@@ -43,10 +43,11 @@ sudo apt-get install libsqlite3-dev
 git clone [https://github.com/RicardoLlima/Projeto-NLinha.git]
 
   - Compilar o código:
-gcc -o jogo main.c -lsqlite3
+gcc main.c -o jogo -lsqlite3
 
   - Executar o jogo:
-./jogo
+      - Windows: jogo.exe
+      - Linux/MacOs: ./jogo
 
 ## Como Jogar
 
@@ -91,7 +92,7 @@ Se uma dessas condições for cumprida, o jogo regista a vitória e exibe o venc
 ### Principais Funções ###
    - **adicionarJogador()**: Adiciona um novo jogador à base de dados.
    - **listarJogador()**: Lista todos os jogadores registados.
-   - **removerJogador()**: Remove um jogador com base no ID, exceto o jogador atual.
+   - **removerJogador()**: Remove um jogador com base no ID, exceto os jogadores atualmente a jogar.
    - **BuildBoard()**: Constrói o tabuleiro de acordo com as configurações fornecidas.
    - **VictoryVerification()**: Verifica condições de vitória com base na sequência definida.
    - **atualizarVitoriasJogador()**: Atualiza o número de vitórias do jogador na base de dados.
